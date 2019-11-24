@@ -24,11 +24,7 @@ User::User(const User &other, std::string& NewName): name(NewName), history(othe
 //Move Constructor
 ///default
 //Copy Assignment
-User& User::operator=(const User &other){    /// NOT NEEDED - the name of the assignment stay the same
-    history=other.history;
-    //name does not change!!!
-    return *this;
-}
+///default - for action duplicate user
 //Move Assignment
 ///default
 //getName
@@ -39,10 +35,15 @@ std::vector<Watchable*> User::get_history() const {     return history;    }
 Watchable* User::get_history_i(int i) const {
     if(i>=0 & i<this->get_history().size())
         return history[i];
-    std::cout << "error: no such index exists.";
+    std::cout << "Error - no such index exists.";
 }
 
 //---------------------Class LengthRecUser----------------------
+//Constructor - this is the default anyway
+LengthRecommenderUser::LengthRecommenderUser(const std::string &name) : User(name) {}
+//Copy Constructor - this is the default anyway
+LengthRecommenderUser::LengthRecommenderUser(const User &other, std::string &NewName)
+        : User(other,NewName) {}
 //getRecommendation
 Watchable* LengthRecommenderUser::getRecommendation(Session &s) {}      /// <<<<<<<<<<< build it
 

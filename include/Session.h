@@ -22,6 +22,8 @@ public:
     std::string getSesLine();                       //get session.line
     void setSesLine(std::string& str);              //set session.line
     std::unordered_map<std::string,User*> getUserMap();     //get user map
+    void setActiveUser(User* name);                 //set active user
+    User* getActiveUser();
     void nextCommand(std::string& currLine);        //command getter from console
     ///-------------Edited End-----------------
 private:

@@ -8,6 +8,7 @@
 class Watchable;
 class Session;
 
+
 class User{
 public:
     User(const std::string& name);
@@ -39,6 +40,9 @@ class LengthRecommenderUser : public User {
 public:
     LengthRecommenderUser(const std::string& name);
     virtual Watchable* getRecommendation(Session& s);
+    ///-------------Edited Start-----------------
+    LengthRecommenderUser(const User &other, std::string& NewName);
+    ///-------------Edited End-------------------
 private:
 };
 
@@ -46,6 +50,9 @@ class RerunRecommenderUser : public User {
 public:
     RerunRecommenderUser(const std::string& name);
     virtual Watchable* getRecommendation(Session& s);
+    ///-------------Edited Start-----------------
+    RerunRecommenderUser(const User &other, std::string& NewName);
+    ///-------------Edited End-------------------
 private:
 };
 
@@ -53,6 +60,9 @@ class GenreRecommenderUser : public User {
 public:
     GenreRecommenderUser(const std::string& name);
     virtual Watchable* getRecommendation(Session& s);
+    ///-------------Edited Start-----------------
+    GenreRecommenderUser(const User &other, std::string& NewName);
+    ///-------------Edited End-------------------
 private:
 };
 
