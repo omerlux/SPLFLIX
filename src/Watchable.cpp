@@ -46,7 +46,7 @@ std::string Movie::toString()  const {
     return (tmp) ;
 }
 //getNextWathable
-    //Watchable* Movie::getNextWatchable(Session &) const {}
+    Watchable* Movie::getNextWatchable(Session &sess) const {}
 /// <<<<<<<<<<<<<<<<<<<<< build it
 
 //---------------------Class Episode----------------------

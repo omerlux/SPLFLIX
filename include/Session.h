@@ -16,14 +16,15 @@ public:
     void start();
     ///-------------Edited Start-----------------
     bool getRunStat();                              //get running value
-    void setRunStat();                              //change running value
+    void setRunStat(bool run);                              //change running value
     void addAction(BaseAction* currAction);         //add last action to actionLog
     std::vector<Watchable*> getContent();           //return vector of content
     std::string getSesLine();                       //get session.line
     void setSesLine(std::string& str);              //set session.line
     std::unordered_map<std::string,User*> getUserMap();     //get user map
     void setActiveUser(User* name);                 //set active user
-    User* getActiveUser();
+    User* getActiveUser();                          //get active user
+    std::vector<BaseAction*> getActionLog();        //get action log
     void nextCommand(std::string& currLine);        //command getter from console
     ///-------------Edited End-----------------
 private:

@@ -19,7 +19,7 @@ public:
     //Destructor
     virtual ~User();
     //Copy Constructor
-    User(const User &other, std::string& NewName);      // copy to ANOTHER name
+    User(const User &other);      // copy to ANOTHER name
     //Move Constructor
         //User(User &&other);
     //Copy Assignment
@@ -28,11 +28,13 @@ public:
         //User& operator=(User &&other);
     //getHistory_i
     Watchable* get_history_i(int i) const;
+    //setName
+    void setName(std::string &new_name);
     ///-------------Edited End-------------------
 protected:
     std::vector<Watchable*> history;
 private:
-    const std::string name;
+    std::string name;
 };
 
 
@@ -41,7 +43,7 @@ public:
     LengthRecommenderUser(const std::string& name);
     virtual Watchable* getRecommendation(Session& s);
     ///-------------Edited Start-----------------
-    LengthRecommenderUser(const User &other, std::string& NewName);
+    LengthRecommenderUser(const User &other);
     ///-------------Edited End-------------------
 private:
 };
@@ -51,7 +53,7 @@ public:
     RerunRecommenderUser(const std::string& name);
     virtual Watchable* getRecommendation(Session& s);
     ///-------------Edited Start-----------------
-    RerunRecommenderUser(const User &other, std::string& NewName);
+    RerunRecommenderUser(const User &other);
     ///-------------Edited End-------------------
 private:
 };
@@ -61,7 +63,7 @@ public:
     GenreRecommenderUser(const std::string& name);
     virtual Watchable* getRecommendation(Session& s);
     ///-------------Edited Start-----------------
-    GenreRecommenderUser(const User &other, std::string& NewName);
+    GenreRecommenderUser(const User &other);
     ///-------------Edited End-------------------
 private:
 };

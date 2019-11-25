@@ -36,7 +36,7 @@ Session::Session(const std::string &configFilePath) {
 //Start
 void Session::start() {
     std::cout <<"SPFLIX is now on!";
-    Session::setRunStat(); // program is running
+    Session::setRunStat(true); // program is running
     std::string cmd;
 
     if(firstRun){
@@ -51,14 +51,19 @@ void Session::start() {
         Session::nextCommand(cmd);
     }
 
-    //User* Default = new LengthRecommenderUser("default"); //------- in CreateUser
-    ///this->activeUser=Default;          ///--- will be in change Active user <<<<<   build it
-    //this->userMap.insert({"default",Default});              //------- in CreateUser
-    //this->actionsLog.push_back(&CreateUser);                //------- in CreateUser
+    ///MAIN LOOP
+    while (this->getRunStat()){
+
+
+
+
+
+
+    }
 }
 
 //set_Run_stat
-void Session::setRunStat(){                                     this->running=~running;    }
+void Session::setRunStat(bool run){                             this->running=run;         }
 //get_Run_stat
 bool Session::getRunStat(){                                     return (this->running);    }
 //addAction
@@ -75,6 +80,8 @@ std::unordered_map<std::string,User*> Session::getUserMap(){    return this->use
 void Session::setActiveUser(User *name)  {                      this->activeUser=name;      }
 //getActiveUser
 User* Session::getActiveUser() {                                return this->activeUser;    }
+//getActionLog
+std::vector<BaseAction*> Session::getActionLog() {              return this->actionsLog;    }
 //nextCommand
 void Session::nextCommand(std::string &currLine) {
 
@@ -116,15 +123,18 @@ void Session::nextCommand(std::string &currLine) {
         p->act(*this);                      //now p is connected to ActionLog, and more stuff
     }
     else if(word.compare("watch")==0){              /// <<<<<<<<<<< build it
+        editedLine>>line;
         ///ACT -> go to watchable get reccomendation (Watchable) -> than from the user (User)???
     }
-    else if(word.compare("log")==0){                /// <<<<<<<<<<< build it
-
+    else if(word.compare("log")==0){
+        BaseAction* p = new PrintActionsLog();
+        p->act(*this);                      //now p is connected to ActionLog, and more stuff
     }
-    else if(word.compare("exit")==0){               /// <<<<<<<<<<< build it
-
+    else if(word.compare("exit")==0){
+        BaseAction* p = new Exit();
+        p->act(*this);                      //now p is connected to ActionLog, and more stuff
     }
-    else{   cout<<"error: no such command!";    }
+    else{   cout<<"Error - no such command!";    }
 }
 
 

@@ -12,6 +12,7 @@ using namespace std;
 //---------------------Class BaseAction----------------------
 //Constructor
 BaseAction::BaseAction(): status(PENDING), errorMsg(nullptr) {}
+//all rule of 5 is default
 
 //getStatus
 ActionStatus BaseAction::getStatus() const {            return this->status;        }
@@ -59,10 +60,12 @@ void CreateUser::act(Session &sess) {
 }
 //createuser toString()
 std::string CreateUser::toString() const {
+    std::string str;
     if(this->getStatus()==ERROR)
-        cout<<"CreateUser "<<this->getStatus()<<": "<<this->getErrorMsg()<<"\n";
+        str="CreateUser "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
     else
-        cout<<"CreateUser "<<this->getStatus()<<"\n";
+        str="CreateUser "+to_string(this->getStatus())+"\n";
+    return (str);
 }
 
 //---------------------Class ChangeActiveUser----------------------
@@ -82,10 +85,12 @@ void ChangeActiveUser::act(Session &sess) {
 }
 //changeactiveuser toString()
 std::string ChangeActiveUser::toString() const {
+    std::string str;
     if(this->getStatus()==ERROR)
-        cout<<"ChangeActiveUser "<<this->getStatus()<<": "<<this->getErrorMsg()<<"\n";
+        str="ChangeActiveUser "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
     else
-        cout<<"ChangeActiveUser "<<this->getStatus()<<"\n";
+        str="ChangeActiveUser "+to_string(this->getStatus())+"\n";
+    return (str);
 }
 
 //---------------------Class DeleteUser----------------------
@@ -107,10 +112,12 @@ void DeleteUser::act(Session &sess) {
 }
 //DeleteUser toString()
 std::string DeleteUser::toString() const {
+    std::string str;
     if(this->getStatus()==ERROR)
-        cout<<"DeleteUser "<<this->getStatus()<<": "<<this->getErrorMsg()<<"\n";
+        str="DeleteUser "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
     else
-        cout<<"DeleteUser "<<this->getStatus()<<"\n";
+        str="DeleteUser "+to_string(this->getStatus())+"\n";
+    return (str);
 }
 
 //---------------------Class DuplicateUser----------------------
@@ -127,7 +134,12 @@ void DuplicateUser::act(Session &sess) {
     if(sess.getUserMap().find(orig_name) == sess.getUserMap().end()){  //check if orig EXISTS in the usermap
         if(sess.getUserMap().find(new_name) != sess.getUserMap().end()) {//check if new is NOT in the usermap
             std::string class_type = typeid( sess.getUserMap().find(orig_name)->second ).name(); //get class #name
-            if(class_type.at(2) == 'L'){
+
+            User* new_usr = sess.getUserMap().find(orig_name)->second;         //temp copy usr
+            new_usr->setName(new_name);
+            sess.getUserMap().insert({new_name, new_usr});        //adding user to userMap
+
+      /*      if(class_type.at(2) == 'L'){
                 User* orig_usr = sess.getUserMap().find(orig_name)->second;         //temp copy usr
                 User* new_usr = new LengthRecommenderUser(*orig_usr, new_name); //duplicate
                 delete (orig_usr);                                                 //delete this tmp user
@@ -144,7 +156,7 @@ void DuplicateUser::act(Session &sess) {
                 User* new_usr = new GenreRecommenderUser(*orig_usr, new_name); //duplicate
                 delete (orig_usr);                                                 //delete this tmp user
                 sess.getUserMap().insert({new_name, new_usr});        //adding user to userMap
-            }
+           }    */
         }
         else{
             error("new name is taken!");            ///new name not available
@@ -159,10 +171,12 @@ void DuplicateUser::act(Session &sess) {
 }
 //DuplicateUser toString()
 std::string DuplicateUser::toString() const {
+    std::string str;
     if(this->getStatus()==ERROR)
-        cout<<"DuplicateUser "<<this->getStatus()<<": "<<this->getErrorMsg()<<"\n";
+        str="DuplicateUser "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
     else
-        cout<<"DuplicateUser "<<this->getStatus()<<"\n";
+        str="DuplicateUser "+to_string(this->getStatus())+"\n";
+    return (str);
 }
 
 //---------------------Class PrintContentList----------------------
@@ -180,10 +194,12 @@ void PrintContentList::act(Session &sess) {
 }
 //PrintContentList toString()
 std::string PrintContentList::toString() const {
-/*    if(this->getStatus()==ERROR)
-        cout<<"PrintContentList "<<this->getStatus()<<": "<<this->getErrorMsg()<<"\n";
+    std::string str;
+    if(this->getStatus()==ERROR)
+        str="PrintContentList "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
     else
-*/        cout<<"PrintContentList "<<this->getStatus()<<"\n";
+        str="PrintContentList "+to_string(this->getStatus())+"\n";
+    return (str);
 }
 
 //---------------------Class PrintWatchHistory----------------------
@@ -196,7 +212,7 @@ void PrintWatchHistory::act(Session &sess) {
             for(int i=0; i<sess.getActiveUser()->get_history().size(); i++)
                 cout<< sess.getActiveUser()->get_history_i(i)->toString() <<"\n";
         }
-        else{error(name+" is not the active user!")};
+        else{   error(name+" is not the active user!");  }
     }
     else{    error("there is no such user!");   }
 
@@ -207,9 +223,66 @@ void PrintWatchHistory::act(Session &sess) {
 }
 //PrintWatchHistory toString()
 std::string PrintWatchHistory::toString() const {
+    std::string str;
     if(this->getStatus()==ERROR)
-        cout<<"PrintWatchHistory "<<this->getStatus()<<": "<<this->getErrorMsg()<<"\n";
+        str="PrintWatchHistory "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
     else
-        cout<<"PrintWatchHistory "<<this->getStatus()<<"\n";
+        str="PrintWatchHistory "+to_string(this->getStatus())+"\n";
+    return (str);
 }
+
+//---------------------Class Watch----------------------
+//Watch act
+void Watch::act(Session &sess) {
+    sess.addAction(this);               //added action to actionLog of the running session
+    int id = std::stoi(sess.getSesLine());       // Convert string to int
+    if (id<1 | id>sess.getContent().size())
+        error("id is illegal!");
+    else{
+        cout<< "Watching "<< sess.getContent()[id]->toString() << "\n";
+    }
+    //// <<<<<<<<<<<<<<<<<<<<<< BUILDDDDDDD
+}
+
+//---------------------Class PrintActionsLog----------------------
+//PrintActionsLog act
+void PrintActionsLog::act(Session &sess) {
+    sess.addAction(this);               //added action to actionLog of the running session
+    for (int i=0; i<sess.getActionLog().size(); i++)
+        cout<<sess.getActionLog()[i]->toString() << "\n";
+    complete();
+}
+//PrintActionsLog toString()
+std::string PrintActionsLog::toString() const {
+    std::string str;
+  /*  if(this->getStatus()==ERROR)
+        str="PrintActionsLog "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
+    else                */
+        str="PrintActionsLog "+to_string(this->getStatus())+"\n";
+    return (str);
+}
+
+//---------------------Class Exit----------------------
+//Exit act
+void Exit::act(Session &sess) {
+    sess.addAction(this);               //added action to actionLog of the running session
+    sess.setRunStat(false );
+}
+//Exit toString()
+std::string Exit::toString() const {
+    std::string str;
+ /*   if(this->getStatus()==ERROR)
+        str="Exit "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
+    else                */
+        str="Exit "+to_string(this->getStatus())+"\n";
+    return (str);
+}
+
+
+
+
+
+
+
+
 
