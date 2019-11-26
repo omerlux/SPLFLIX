@@ -30,11 +30,34 @@ public:
     Watchable* get_history_i(int i) const;
     //setName
     void setName(std::string &new_name);
+    //getWatched
+    std::vector<bool> getWatched();
+    //setWatched
+    void setWatched_i(int i);
+    //create watch vector
+    void CreateWatched(Session &);
+    //setAvg
+    void setAvg (int length_val);
+    //getAvg
+    double getAvg () const;
+    //getGenres
+    std::vector<std::pair<std::string,int>> getGenres ();
+    //addGenre
+    void addGenre (Watchable*);
+    //getMstWatchedGenre
+    std::string getMstWatchedGenre() const;
     ///-------------Edited End-------------------
 protected:
     std::vector<Watchable*> history;
 private:
     std::string name;
+    ///-------------Edited Start-----------------
+    std::vector<bool> watched;
+    std::vector<std::pair<std::string,int>> Genres;
+    std::pair<std::string,int>* mstWatchedGenre;
+    double avg;
+
+    ///-------------Edited End-------------------
 };
 
 
@@ -56,6 +79,9 @@ public:
     RerunRecommenderUser(const User &other);
     ///-------------Edited End-------------------
 private:
+    ///-------------Edited Start-----------------
+    int rerun_next_index;
+    ///-------------Edited End-------------------
 };
 
 class GenreRecommenderUser : public User {

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>
 
 #include "../include/json.hpp"
 #include "../include/Session.h"
@@ -38,14 +39,17 @@ void CreateUser::act(Session &sess) {
         if(alg.compare("len")==0){
             User* usr = new LengthRecommenderUser(name);
             sess.getUserMap().insert({name,usr});        //adding user to userMap
+            usr->CreateWatched(sess);                 //create watched vector
         }
         else if(alg.compare("rer")==0){
             User* usr = new RerunRecommenderUser(name);
             sess.getUserMap().insert({name,usr});        //adding user to userMap
+            usr->CreateWatched(sess);                 //create watched vector
         }
         else if(alg.compare("gen")==0){
             User* usr = new GenreRecommenderUser(name);
             sess.getUserMap().insert({name,usr});        //adding user to userMap
+            usr->CreateWatched(sess);                 //create watched vector
         }
         else{
             error("unknown recommendation algorithm!");
@@ -57,6 +61,12 @@ void CreateUser::act(Session &sess) {
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else
         this->complete();
+
+
+
+    //line initialization
+    std::string str = "";
+    sess.setSesLine(str);
 }
 //createuser toString()
 std::string CreateUser::toString() const {
@@ -82,6 +92,10 @@ void ChangeActiveUser::act(Session &sess) {
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else
         this->complete();
+
+    //line initialization
+    std::string str = "";
+    sess.setSesLine(str);
 }
 //changeactiveuser toString()
 std::string ChangeActiveUser::toString() const {
@@ -109,6 +123,10 @@ void DeleteUser::act(Session &sess) {
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else
         this->complete();
+
+    //line initialization
+    std::string str = "";
+    sess.setSesLine(str);
 }
 //DeleteUser toString()
 std::string DeleteUser::toString() const {
@@ -168,6 +186,10 @@ void DuplicateUser::act(Session &sess) {
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else
         this->complete();
+
+    //line initialization
+    std::string str = "";
+    sess.setSesLine(str);
 }
 //DuplicateUser toString()
 std::string DuplicateUser::toString() const {
@@ -191,6 +213,10 @@ void PrintContentList::act(Session &sess) {
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else
 */        this->complete();
+
+    //line initialization
+    std::string str = "";
+    sess.setSesLine(str);
 }
 //PrintContentList toString()
 std::string PrintContentList::toString() const {
@@ -220,6 +246,10 @@ void PrintWatchHistory::act(Session &sess) {
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else
         this->complete();
+
+    //line initialization
+    std::string str = "";
+    sess.setSesLine(str);
 }
 //PrintWatchHistory toString()
 std::string PrintWatchHistory::toString() const {
@@ -236,12 +266,34 @@ std::string PrintWatchHistory::toString() const {
 void Watch::act(Session &sess) {
     sess.addAction(this);               //added action to actionLog of the running session
     int id = std::stoi(sess.getSesLine());       // Convert string to int
-    if (id<1 | id>sess.getContent().size())
-        error("id is illegal!");
-    else{
-        cout<< "Watching "<< sess.getContent()[id]->toString() << "\n";
+    if (id < 1 | id > sess.getContent().size()) {
+          error("id is illegal!");
+          //line initialization
+          std::string str = "";
+          sess.setSesLine(str);
     }
-    //// <<<<<<<<<<<<<<<<<<<<<< BUILDDDDDDD
+    else {
+        cout << "Watching " << sess.getContent()[id-1]->toString() << "\n";
+        sess.getActiveUser()->get_history().push_back(sess.getContent()[id-1]);       //adding the watched to history
+        Watchable *next_watch = sess.getContent()[id-1]->getNextWatchable(sess);
+        cout << "We recommend watching " << next_watch->only_name() << ", continue watching? [y/n]\n";    //ask recommendation
+
+        std::string ans;
+        getline(std::cin, ans);
+        while (ans.compare("y") != 0 | ans.compare("n") != 0) {
+            getline(std::cin, ans);
+            cout << "Choose only y or n.\n";
+        }
+        if (ans.compare("y") == 0) {
+            std::string tmp_str = "watch " + next_watch->getId();
+            sess.setSesLine(tmp_str);
+        }
+        else{
+            std::string str = "";
+            sess.setSesLine(str);
+        }
+        delete next_watch;
+    }
 }
 
 //---------------------Class PrintActionsLog----------------------
@@ -251,6 +303,10 @@ void PrintActionsLog::act(Session &sess) {
     for (int i=0; i<sess.getActionLog().size(); i++)
         cout<<sess.getActionLog()[i]->toString() << "\n";
     complete();
+
+    //line initialization
+    std::string str = "";
+    sess.setSesLine(str);
 }
 //PrintActionsLog toString()
 std::string PrintActionsLog::toString() const {
@@ -267,6 +323,10 @@ std::string PrintActionsLog::toString() const {
 void Exit::act(Session &sess) {
     sess.addAction(this);               //added action to actionLog of the running session
     sess.setRunStat(false );
+
+    //line initialization
+    std::string str = "";
+    sess.setSesLine(str);
 }
 //Exit toString()
 std::string Exit::toString() const {

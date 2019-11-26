@@ -33,6 +33,8 @@ public:
     int getLength() const;
     //getTags
     const std::vector <std::string>& getTags() const;
+    //get Name for "watch"
+    virtual std::string only_name() const =0;
     ///-------------Edited End-----------------
 private:
     const long id;
@@ -54,6 +56,8 @@ public:
     virtual ~Movie();
     //getName
     const std::string& getName() const;
+    //get Name for "watch"
+    virtual std::string only_name() const;
     ///-------------Edited End-------------------
 private:
     std::string name;
@@ -77,6 +81,10 @@ public:
     int getSeason() const;
     //getEpisode
     int getEpisode() const;
+    //setNextEpisodeId
+    void setNextEpisodeId(long nxt_id);
+    //get Name for "watch"
+    virtual std::string only_name() const;
     ///-------------Edited End-------------------
 private:
     std::string seriesName;

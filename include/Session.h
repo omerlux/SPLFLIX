@@ -35,8 +35,8 @@ private:
     ///-------------Edited Start-----------------
     bool running;                                  //program flow indicator
     std::string line;                              //line of command
-    /// Creation of function to delete Line after each use ???????
-    bool firstRun;
+         // Created function to delete Line after each use
+
     ///-------------Edited End-----------------
 };
 

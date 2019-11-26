@@ -13,7 +13,6 @@ using json = nlohmann::json;
 //---------------------Class Session----------------------
 //Constructor
 Session::Session(const std::string &configFilePath) {
-    firstRun= true;
     running = false;
     line="";
     std::ifstream i("../config2.json");
@@ -24,41 +23,58 @@ Session::Session(const std::string &configFilePath) {
         this->content.push_back(new Movie(this->content.size()+1,j["movies"][k]["name"],
                 j["movies"][k]["length"],j["movies"][k]["tags"]));  ///WATCH FOR ERRORS WITH USING JSON
     }
-    for(int k=0; k<j["tv_series"].size(); k++){
-        for(int s=1; s<=j["tv_series"][k]["seasons"].size(); s++)
-            for(int e=1; e<=j["tv_series"][k]["seasons"][s-1]; e++)
-                this->content.push_back(new Episode(this->content.size()+1,j["tv_series"][k]["name"],
-                        j["tv_series"][k]["episode_length"],s,e,j["tv_series"][k]["tags"] ));
+    for(int k=0; k<j["tv_series"].size(); k++) {
+        for (int s = 1; s <= j["tv_series"][k]["seasons"].size(); s++) {
+            for (int e = 1; e <= j["tv_series"][k]["seasons"][s - 1]; e++) {
+                Episode* EP = new Episode(this->content.size() + 1, j["tv_series"][k]["name"],
+                        j["tv_series"][k]["episode_length"], s, e,j["tv_series"][k]["tags"]);
+                this->content.push_back(EP);
+                if(s==j["tv_series"][k]["seasons"].size() &  e==j["tv_series"][k]["seasons"][s - 1] )
+                    EP->setNextEpisodeId(0);                        //LAST EPISODE AT TV SERIES
+                else
+                    EP->setNextEpisodeId(this->content.size()+2);
+            }
+        }
     }
     /// Add config 1 ?????
+    //Create new user default and it's the active user
+    std::string cmd;
+    cmd = "createuser default len";
+    Session::nextCommand(cmd);
+    cmd = "changeuser default";
+    Session::nextCommand(cmd);
+
+
+
+    /// <<<<<<<<<<< build all the rule of 4
 }
+//Copy Constructor
+
+//Move Constructor
+
+//Copy Assignment
+
+//Move Assignment
+
+//Destructor
+
+
 
 //Start
 void Session::start() {
     std::cout <<"SPFLIX is now on!";
     Session::setRunStat(true); // program is running
-    std::string cmd;
-
-    if(firstRun){
-        cmd = "createuser default len";
-        Session::nextCommand(cmd);
-        cmd = "changeuser default";
-        Session::nextCommand(cmd);
-        this->firstRun=false;                   //only first start will create default.
-    }
-    else{
-        cmd = "changeuser default";
-        Session::nextCommand(cmd);
-    }
 
     ///MAIN LOOP
     while (this->getRunStat()){
-
-
-
-
-
-
+        if( this->line.compare("")!=0){
+            nextCommand(this->line);
+        }
+        else {
+            std::string cmd;
+            std::getline(std::cin, cmd);
+            nextCommand(cmd);
+        }
     }
 }
 
@@ -124,7 +140,8 @@ void Session::nextCommand(std::string &currLine) {
     }
     else if(word.compare("watch")==0){              /// <<<<<<<<<<< build it
         editedLine>>line;
-        ///ACT -> go to watchable get reccomendation (Watchable) -> than from the user (User)???
+        BaseAction* p = new Watch();
+        p->act(*this);                      //now p is connected to ActionLog, and more stuff
     }
     else if(word.compare("log")==0){
         BaseAction* p = new PrintActionsLog();
