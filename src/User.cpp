@@ -18,11 +18,17 @@ User::User(const User &other): name(name), history(other.history) {  /// $$$  Ne
 ///copy of vector by default
 }
 //Move Constructor
-///default
+User::User(User &&other) {}
 //Copy Assignment
-///default - for action duplicate user
+User &User::operator=(const User &other) { return *this; }
 //Move Assignment
-///default
+User &User::operator=(User &&other) { return *this; }
+//User Clone
+User *User::clone() {
+    return nullptr;
+}
+
+
 //getName
 std::string User::getName() const{                                 return name;   }
 //getHistory
@@ -103,10 +109,16 @@ Watchable* LengthRecommenderUser::getRecommendation(Session &s) {
     }
     return (best_opt);
 }
+//LengthRecommenderUser Clone
+User *LengthRecommenderUser::clone() {
+    return (new LengthRecommenderUser(*this));
+}
 
 //---------------------Class RerunRecUser----------------------
 //Constructor
 RerunRecommenderUser::RerunRecommenderUser(const std::string &name) : User(name), rerun_next_index(0) {}
+//CopyConstructor
+RerunRecommenderUser::RerunRecommenderUser(const User &other) : User(other) {}
 //getRecommendation
 Watchable* RerunRecommenderUser::getRecommendation(Session &s) {
     // ******* rerun_next_index will always < history.size()
@@ -115,10 +127,17 @@ Watchable* RerunRecommenderUser::getRecommendation(Session &s) {
 }
 // !!!  if seen no episodes - always will recommend the last watchable
 
+//RerunRecommenderUser Clone
+User *RerunRecommenderUser::clone() {
+    return (new RerunRecommenderUser(*this));
+}
+
 
 //---------------------Class GenreRecUser----------------------
 //Constructor
 GenreRecommenderUser::GenreRecommenderUser( const std::string &name):User(name) {}
+//Copy Constructor
+GenreRecommenderUser::GenreRecommenderUser(const User &other): User(other) {}
 //getRecommendation
 Watchable* GenreRecommenderUser::getRecommendation(Session &s) {
     // those 2 will be operate manuely at Watchable.cpp->getNextWatchable
@@ -134,5 +153,10 @@ Watchable* GenreRecommenderUser::getRecommendation(Session &s) {
         }
     }
     return (best_opt);
-
 }
+//GenreRecommenderUser Clone
+User *GenreRecommenderUser::clone() {
+    return (new GenreRecommenderUser(*this));
+}
+
+

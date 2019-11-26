@@ -21,11 +21,11 @@ public:
     //Copy Constructor
     User(const User &other);      // copy to ANOTHER name
     //Move Constructor
-        //User(User &&other);
+    User(User &&other);
     //Copy Assignment
     User& operator=(const User &other);
     //Move Assignment
-        //User& operator=(User &&other);
+    User& operator=(User &&other);
     //getHistory_i
     Watchable* get_history_i(int i) const;
     //setName
@@ -46,6 +46,8 @@ public:
     void addGenre (Watchable*);
     //getMstWatchedGenre
     std::string getMstWatchedGenre() const;
+    //User clone
+    virtual User* clone() ;
     ///-------------Edited End-------------------
 protected:
     std::vector<Watchable*> history;
@@ -67,6 +69,8 @@ public:
     virtual Watchable* getRecommendation(Session& s);
     ///-------------Edited Start-----------------
     LengthRecommenderUser(const User &other);
+    //GenreRecommenderUser clone
+    virtual User* clone() ;
     ///-------------Edited End-------------------
 private:
 };
@@ -77,6 +81,8 @@ public:
     virtual Watchable* getRecommendation(Session& s);
     ///-------------Edited Start-----------------
     RerunRecommenderUser(const User &other);
+    //GenreRecommenderUser clone
+    virtual User* clone() ;
     ///-------------Edited End-------------------
 private:
     ///-------------Edited Start-----------------
@@ -90,6 +96,8 @@ public:
     virtual Watchable* getRecommendation(Session& s);
     ///-------------Edited Start-----------------
     GenreRecommenderUser(const User &other);
+    //GenreRecommenderUser clone
+    virtual User* clone() ;
     ///-------------Edited End-------------------
 private:
 };

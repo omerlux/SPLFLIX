@@ -15,6 +15,15 @@ public:
     ~Session();
     void start();
     ///-------------Edited Start-----------------
+    //Copy Constructor
+    Session(Session &other);
+    //Move Constructor
+    Session(Session &&other);
+    //Copy Assignment
+    Session& operator=(Session &other);
+    //Move Assignment
+    Session& operator=(Session &&other);
+
     bool getRunStat();                              //get running value
     void setRunStat(bool run);                              //change running value
     void addAction(BaseAction* currAction);         //add last action to actionLog

@@ -13,7 +13,20 @@ using namespace std;
 //---------------------Class BaseAction----------------------
 //Constructor
 BaseAction::BaseAction(): status(PENDING), errorMsg(nullptr) {}
-//all rule of 5 is default
+//Destructor
+BaseAction::~BaseAction() {}
+//Copy Constructor
+BaseAction::BaseAction(const BaseAction &other) {}
+//Move Constructor
+BaseAction::BaseAction(BaseAction &&other) {}
+//Copy Assignment
+BaseAction &BaseAction::operator=(const BaseAction &other) {    return *this;}
+//Move Assignment
+BaseAction &BaseAction::operator=(BaseAction &&other) {    return *this;}
+// BaseAction Clone
+BaseAction* BaseAction::clone() {
+    return nullptr;
+}
 
 //getStatus
 ActionStatus BaseAction::getStatus() const {            return this->status;        }
@@ -62,8 +75,6 @@ void CreateUser::act(Session &sess) {
     else
         this->complete();
 
-
-
     //line initialization
     std::string str = "";
     sess.setSesLine(str);
@@ -77,6 +88,8 @@ std::string CreateUser::toString() const {
         str="CreateUser "+to_string(this->getStatus())+"\n";
     return (str);
 }
+// CreateUser Clone
+BaseAction* CreateUser::clone() {  return (new CreateUser(*this)); }
 
 //---------------------Class ChangeActiveUser----------------------
 //changeactiveuser act
@@ -106,6 +119,8 @@ std::string ChangeActiveUser::toString() const {
         str="ChangeActiveUser "+to_string(this->getStatus())+"\n";
     return (str);
 }
+// ChangeActiveUser Clone
+BaseAction* ChangeActiveUser::clone() {  return (new ChangeActiveUser(*this)); }
 
 //---------------------Class DeleteUser----------------------
 //DeleteUser act
@@ -137,6 +152,8 @@ std::string DeleteUser::toString() const {
         str="DeleteUser "+to_string(this->getStatus())+"\n";
     return (str);
 }
+// DeleteUser Clone
+BaseAction* DeleteUser::clone() {  return (new DeleteUser(*this)); }
 
 //---------------------Class DuplicateUser----------------------
 //DuplicateUser act
@@ -152,29 +169,29 @@ void DuplicateUser::act(Session &sess) {
     if(sess.getUserMap().find(orig_name) == sess.getUserMap().end()){  //check if orig EXISTS in the usermap
         if(sess.getUserMap().find(new_name) != sess.getUserMap().end()) {//check if new is NOT in the usermap
             std::string class_type = typeid( sess.getUserMap().find(orig_name)->second ).name(); //get class #name
+                    // SHALLOW COPY @@@@@@@@@@@@@@@@@@@
+            //User* new_usr = new User (*sess.getUserMap().find(orig_name)->second);         //temp copy usr
+            //new_usr->setName(new_name);
+            //sess.getUserMap().insert({new_name, new_usr});        //adding user to userMap
 
-            User* new_usr = sess.getUserMap().find(orig_name)->second;         //temp copy usr
-            new_usr->setName(new_name);
-            sess.getUserMap().insert({new_name, new_usr});        //adding user to userMap
-
-      /*      if(class_type.at(2) == 'L'){
-                User* orig_usr = sess.getUserMap().find(orig_name)->second;         //temp copy usr
-                User* new_usr = new LengthRecommenderUser(*orig_usr, new_name); //duplicate
-                delete (orig_usr);                                                 //delete this tmp user
+            if(class_type.at(2) == 'L'){
+                LengthRecommenderUser* new_usr =
+                        dynamic_cast<LengthRecommenderUser*>( sess.getUserMap().find(orig_name)->second); //Duplicate
+                new_usr->setName(new_name);
                 sess.getUserMap().insert({new_name, new_usr});        //adding user to userMap
             }
             else if(class_type.at(2)=='R'){
-                User* orig_usr = sess.getUserMap().find(orig_name)->second;         //temp copy usr
-                User* new_usr = new RerunRecommenderUser(*orig_usr, new_name); //duplicate
-                delete (orig_usr);                                                 //delete this tmp user
+                RerunRecommenderUser* new_usr =
+                        dynamic_cast<RerunRecommenderUser*>( sess.getUserMap().find(orig_name)->second); //Duplicate
+                new_usr->setName(new_name);
                 sess.getUserMap().insert({new_name, new_usr});        //adding user to userMap
             }
             else if(class_type.at(2)=='G'){ // can be else - just to clearify
-                User* orig_usr = sess.getUserMap().find(orig_name)->second;         //temp copy usr
-                User* new_usr = new GenreRecommenderUser(*orig_usr, new_name); //duplicate
-                delete (orig_usr);                                                 //delete this tmp user
+                GenreRecommenderUser* new_usr =
+                        dynamic_cast<GenreRecommenderUser*>( sess.getUserMap().find(orig_name)->second); //Duplicate
+                new_usr->setName(new_name);
                 sess.getUserMap().insert({new_name, new_usr});        //adding user to userMap
-           }    */
+           }
         }
         else{
             error("new name is taken!");            ///new name not available
@@ -200,6 +217,8 @@ std::string DuplicateUser::toString() const {
         str="DuplicateUser "+to_string(this->getStatus())+"\n";
     return (str);
 }
+// DuplicateUser Clone
+BaseAction* DuplicateUser::clone() {  return (new DuplicateUser(*this)); }
 
 //---------------------Class PrintContentList----------------------
 //PrintContentList act
@@ -227,6 +246,8 @@ std::string PrintContentList::toString() const {
         str="PrintContentList "+to_string(this->getStatus())+"\n";
     return (str);
 }
+// PrintContentList Clone
+BaseAction* PrintContentList::clone() {  return (new PrintContentList(*this)); }
 
 //---------------------Class PrintWatchHistory----------------------
 //PrintWatchHistory act
@@ -260,6 +281,8 @@ std::string PrintWatchHistory::toString() const {
         str="PrintWatchHistory "+to_string(this->getStatus())+"\n";
     return (str);
 }
+// PrintWatchHistory Clone
+BaseAction* PrintWatchHistory::clone() {  return (new PrintWatchHistory(*this)); }
 
 //---------------------Class Watch----------------------
 //Watch act
@@ -295,6 +318,8 @@ void Watch::act(Session &sess) {
         delete next_watch;
     }
 }
+// Watch Clone
+BaseAction* Watch::clone() {  return (new Watch(*this)); }
 
 //---------------------Class PrintActionsLog----------------------
 //PrintActionsLog act
@@ -317,6 +342,8 @@ std::string PrintActionsLog::toString() const {
         str="PrintActionsLog "+to_string(this->getStatus())+"\n";
     return (str);
 }
+// PrintActionsLog Clone
+BaseAction* PrintActionsLog::clone() {  return (new PrintActionsLog(*this)); }
 
 //---------------------Class Exit----------------------
 //Exit act
@@ -337,7 +364,8 @@ std::string Exit::toString() const {
         str="Exit "+to_string(this->getStatus())+"\n";
     return (str);
 }
-
+// Exit Clone
+BaseAction* Exit::clone() {  return (new Exit(*this)); }
 
 
 

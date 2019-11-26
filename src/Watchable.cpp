@@ -10,23 +10,29 @@ using namespace std;
 
 //---------------------Class Watchable----------------------
 //Constructor
-    //Watchable::Watchable(long id, int length, const std::vector<std::string> &tags) : id(id),length(length), tags(tags){}
+    Watchable::Watchable(long id, int length, const std::vector<std::string> &tags) : id(id),length(length), tags(tags){}
 //Destructor
-    //Watchable::~Watchable() {}
+    Watchable::~Watchable() {}
 //Copy Constructor
-    //Watchable::Watchable(const Watchable &other): id(other.id), length(other.length), tags(other.tags) {}
+    Watchable::Watchable(const Watchable &other): id(other.id), length(other.length), tags(other.tags) {}
 //Move Constructor
-    //Watchable::Watchable(Watchable &&other): id(other.id), length(other.length), tags(other.tags){}
+    Watchable::Watchable(Watchable &&other): id(other.id), length(other.length), tags(other.tags){}
 //Copy Assignment
-    //Watchable& Watchable::operator=(const Watchable &other){}
+    Watchable& Watchable::operator=(const Watchable &other){    return *this;    }
 //Move Assignment
-    //Watchable& Watchable::operator=(Watchable &&other){}
+    Watchable& Watchable::operator=(Watchable &&other){         return *this;    }
+
+
 //getId
 long Watchable::getId() const {    return id;   }
 //getLength
 int Watchable::getLength() const {    return length;   }
 //getTags
 const std::vector <std::string>& Watchable::getTags() const{   return tags;  }
+//Watchable Clone
+Watchable *Watchable::clone() {
+    return nullptr;
+}
 
 
 //---------------------Class Movie----------------------
@@ -52,7 +58,8 @@ std::string Movie::only_name() const{
 }
 //getNextWathable
 Watchable* Movie::getNextWatchable(Session &sess) const {    return sess.getActiveUser()->getRecommendation(sess);  }
-
+// Movie Clone
+Watchable* Movie::clone() {  return (new Movie(*this)); }
 
 //---------------------Class Episode----------------------
 //Constructor
@@ -102,3 +109,5 @@ Watchable* Episode::getNextWatchable(Session &sess) const {
         return sess.getActiveUser()->getRecommendation(sess);    //Last episode
     }
 }
+// Episode Clone
+Watchable* Episode::clone() {  return (new Episode(*this)); }

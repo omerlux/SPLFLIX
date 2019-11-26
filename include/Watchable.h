@@ -18,7 +18,7 @@ public:
     virtual std::string toString() const = 0;
     virtual Watchable* getNextWatchable(Session&) const = 0;
     ///-------------Edited Start-----------------
-    /*   //Copy Constructor
+       //Copy Constructor
        Watchable(const Watchable &other);
        //Move Constructor
        Watchable(Watchable &&other);
@@ -26,7 +26,7 @@ public:
        Watchable& operator=(const Watchable &other);
        //Move Assignment
        Watchable& operator=(Watchable &&other);
-   */
+
     //getId
     long getId() const;
     //getLength
@@ -35,6 +35,8 @@ public:
     const std::vector <std::string>& getTags() const;
     //get Name for "watch"
     virtual std::string only_name() const =0;
+    //Watchable Clone
+    virtual Watchable* clone();
     ///-------------Edited End-----------------
 private:
     const long id;
@@ -58,6 +60,8 @@ public:
     const std::string& getName() const;
     //get Name for "watch"
     virtual std::string only_name() const;
+    //Movie Clone
+    virtual Watchable* clone();
     ///-------------Edited End-------------------
 private:
     std::string name;
@@ -85,6 +89,8 @@ public:
     void setNextEpisodeId(long nxt_id);
     //get Name for "watch"
     virtual std::string only_name() const;
+    //Episode Clone
+    virtual Watchable* clone();
     ///-------------Edited End-------------------
 private:
     std::string seriesName;

@@ -43,22 +43,184 @@ Session::Session(const std::string &configFilePath) {
     Session::nextCommand(cmd);
     cmd = "changeuser default";
     Session::nextCommand(cmd);
-
-
-
-    /// <<<<<<<<<<< build all the rule of 4
+}
+//Destructor
+Session::~Session() {
+    for(int i=0; i<this->getContent().size(); i++){                 //DELETE
+        delete this->getContent()[i];
+    }
+    for(int i=0; i<this->getActionLog().size(); i++){               //DELETE
+        delete this->getActionLog()[i];
+    }
+    this->getUserMap().erase(this->getUserMap().begin(),this->getUserMap().end());  //DELETE
+    delete this->activeUser;
+    this->activeUser=nullptr;
 }
 //Copy Constructor
+Session::Session(Session &other): running(other.running), line(other.line) {
+    for(int i=0; i<other.getContent().size(); i++){                 //Insert
+        this->getContent().push_back( other.getContent()[i]->clone() );
 
+       /*Watchable* cpy = Watchable(other.getContent()[i]);
+       this->getContent().push_back(other.getContent()[i]); */
+    }
+    for(int i=0; i<other.getActionLog().size(); i++){                 //Insert
+        this->getActionLog().push_back(  other.getActionLog()[i]->clone() );
+    }
+    /*for ( unsigned i = 0; i < other.getUserMap().bucket_count(); ++i) {
+            for ( auto local_it = other.getUserMap().begin(i); local_it!= other.getUserMap().end(i); ++local_it ) {
+                User* old_usr = local_it->second;
+                std::string old_name = local_it->first;
+                std::string class_type = typeid( old_usr ).name(); //get class #name
+                if(class_type.at(2) == 'L'){
+                    LengthRecommenderUser* new_usr =
+                            dynamic_cast<LengthRecommenderUser*>( old_usr); //Duplicate
+                    this->getUserMap().insert({old_name, new_usr});        //adding user to userMap
+                    if(other.getActiveUser() == old_usr)
+                        this->setActiveUser(new_usr);    // Active user
+                }
+                else if(class_type.at(2)=='R'){
+                    RerunRecommenderUser* new_usr =
+                            dynamic_cast<RerunRecommenderUser*>( old_usr); //Duplicate
+                    this->getUserMap().insert({old_name, new_usr});        //adding user to userMap
+                    if(other.getActiveUser() == old_usr)
+                        this->setActiveUser(new_usr);   // Active user
+                }
+                else if(class_type.at(2)=='G') { // can be else - just to clearify
+                    GenreRecommenderUser *new_usr =
+                            dynamic_cast<GenreRecommenderUser *>( old_usr); //Duplicate
+                    this->getUserMap().insert({old_name, new_usr});        //adding user to userMap
+                    if(other.getActiveUser() == old_usr)
+                        this->setActiveUser(new_usr);    // Active user
+                }
+            }
+    }
+     */
+    for ( unsigned i = 0; i < other.getUserMap().bucket_count(); ++i) {
+        for (auto local_it = other.getUserMap().begin(i); local_it != other.getUserMap().end(i); ++local_it) {
+            User *new_usr = local_it->second->clone();
+            std::string cpy_name = local_it->first;
+            this->getUserMap().insert({cpy_name, new_usr});        //adding user to userMap
+            if(other.getActiveUser() == local_it->second)
+                this->setActiveUser(new_usr);    // Active user
+        }
+    }
+}
 //Move Constructor
+Session::Session(Session &&other): running(other.running), line(other.line) {
+    if(this!=&other) {
+        for (int i = 0; i < other.getContent().size(); i++) {                 //Insert
+            this->getContent().push_back(other.getContent()[i]);
+            other.getContent()[i] = nullptr;  //delete other one
+            /*Watchable* cpy = Watchable(other.getContent()[i]);
+            this->getContent().push_back(other.getContent()[i]);*/
+        }
+        for (int i = 0; i < other.getContent().size(); i++) {  //delete other one
+            delete other.getContent()[i];
+        }
+        for (int i = 0; i < other.getActionLog().size(); i++) {                 //Insert
+            this->getActionLog().push_back(other.getActionLog()[i]);
+            other.getActionLog()[i] = nullptr;    //delete other one
+        }
+        for (int i = 0; i < other.getActionLog().size(); i++) {
+            delete other.getActionLog()[i];     //delete other one
+        }
 
+        for (unsigned i = 0; i < other.getUserMap().bucket_count(); ++i) {
+            for (auto local_it = other.getUserMap().begin(i); local_it != other.getUserMap().end(i); ++local_it) {
+                User *new_usr = local_it->second;
+                std::string cpy_name = local_it->first;
+                this->getUserMap().insert({cpy_name, new_usr});        //adding user to userMap
+                if (other.getActiveUser() == local_it->second)
+                    this->setActiveUser(new_usr);    // Active user
+                local_it->second = nullptr;
+            }
+        }
+        other.getUserMap().erase(other.getUserMap().begin(), other.getUserMap().end());  //DELETE
+    }
+}
 //Copy Assignment
+Session &Session::operator=(Session &other){
+    if(this!=&other) {
+        this->running = other.running;
+        this->line = other.line;
+        for (int i = 0; i < this->getContent().size(); i++) {                 //delete
+            delete this->getContent()[i];
+        }
+        for (int i = 0; i < other.getContent().size(); i++) {                 //Insert
+            this->getContent().push_back(other.getContent()[i]->clone());                       //CLONE
+        }
 
+        for (int i = 0; i < other.getActionLog().size(); i++) {               //delete
+            delete other.getActionLog()[i];
+        }
+        for (int i = 0; i < other.getActionLog().size(); i++) {                 //Insert
+            this->getActionLog().push_back(other.getActionLog()[i]->clone());              //CLONE
+        }
+
+        for (unsigned i = 0; i < this->getUserMap().bucket_count(); ++i) { //delete
+            for (auto local_it = this->getUserMap().begin(i); local_it != this->getUserMap().end(i); ++local_it) {
+                delete local_it->second;
+            }
+        }
+        this->getUserMap().erase(this->getUserMap().begin(), this->getUserMap().end());  //DELETE THIS MAP
+        for (unsigned i = 0; i < other.getUserMap().bucket_count(); ++i) {                       // INSERT THIS MAP
+            for (auto local_it = other.getUserMap().begin(i); local_it != other.getUserMap().end(i); ++local_it) {
+                User *new_usr = local_it->second->clone();                                  //CLONE
+                std::string cpy_name = local_it->first;
+                this->getUserMap().insert({cpy_name, new_usr});        //adding user to userMap
+                if (other.getActiveUser() == local_it->second)
+                    this->setActiveUser(new_usr);    // Active user
+            }
+        }
+    }
+        return (*this);
+}
 //Move Assignment
+Session &Session::operator=(Session &&other) {
+    this->running=other.running;
+    this->line=other.line;
+    for(int i=0; i<this->getContent().size(); i++){                 //delete
+        delete this->getContent()[i];
+    }
+    for(int i=0; i<other.getContent().size(); i++) {                 //Insert
+        this->getContent().push_back(other.getContent()[i]);
+        other.getContent()[i]=nullptr;  //delete other one
+    }
+    for(int i=0; i<other.getContent().size(); i++){  //delete other one
+        delete other.getContent()[i];
+    }
 
-//Destructor
+    for(int i=0; i<this->getActionLog().size(); i++){               //delete
+        delete this->getActionLog()[i];
+    }
+    for(int i=0; i<other.getActionLog().size(); i++){                 //Insert
+        this->getActionLog().push_back(  other.getActionLog()[i]);
+        other.getActionLog()[i]=nullptr;    //delete other one
+    }
+    for(int i=0; i<other.getActionLog().size(); i++){
+        delete other.getActionLog()[i];     //delete other one
+    }
 
-
+    for ( unsigned i = 0; i < this->getUserMap().bucket_count(); ++i) { //delete THIS
+        for (auto local_it = this->getUserMap().begin(i); local_it != this->getUserMap().end(i); ++local_it) {
+            delete local_it->second;
+        }
+    }
+    other.getUserMap().erase(other.getUserMap().begin(),other.getUserMap().end());  //DELETE THIS
+    for ( unsigned i = 0; i < other.getUserMap().bucket_count(); ++i) {
+        for (auto local_it = other.getUserMap().begin(i); local_it != other.getUserMap().end(i); ++local_it) {
+            User *new_usr = local_it->second;
+            std::string cpy_name = local_it->first;
+            this->getUserMap().insert({cpy_name, new_usr});        //adding user to userMap
+            if (other.getActiveUser() == local_it->second)
+                this->setActiveUser(new_usr);    // Active user
+            local_it->second=nullptr;
+        }
+    }
+    other.getUserMap().erase(other.getUserMap().begin(),other.getUserMap().end());  //DELETE Other
+    return (*this);
+}
 
 //Start
 void Session::start() {
