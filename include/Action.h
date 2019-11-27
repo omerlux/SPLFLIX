@@ -19,7 +19,7 @@ public:
 	virtual std::string toString() const=0;
     ///-------------Edited Start-----------------
     //Destructor
-    ~BaseAction();
+    virtual ~BaseAction();
     //Copy Constructor
     BaseAction(const BaseAction &other);
     //Move Constructor

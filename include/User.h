@@ -80,7 +80,7 @@ public:
     RerunRecommenderUser(const std::string& name);
     virtual Watchable* getRecommendation(Session& s);
     ///-------------Edited Start-----------------
-    RerunRecommenderUser(const User &other);
+    RerunRecommenderUser(const RerunRecommenderUser &other);
     //GenreRecommenderUser clone
     virtual User* clone() ;
     ///-------------Edited End-------------------

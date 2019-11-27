@@ -15,7 +15,7 @@ using json = nlohmann::json;
 Session::Session(const std::string &configFilePath) {
     running = false;
     line="";
-    std::ifstream i("../config2.json");
+    std::ifstream i("../config1.json");
     json j;
     i >>j;
     //switch() /// import json parameters for watchables
@@ -53,7 +53,7 @@ Session::~Session() {
         delete this->getActionLog()[i];
     }
     this->getUserMap().erase(this->getUserMap().begin(),this->getUserMap().end());  //DELETE
-    delete this->activeUser;
+    //delete this->activeUser;
     this->activeUser=nullptr;
 }
 //Copy Constructor
@@ -115,9 +115,13 @@ Session::Session(Session &&other): running(other.running), line(other.line) {
             /*Watchable* cpy = Watchable(other.getContent()[i]);
             this->getContent().push_back(other.getContent()[i]);*/
         }
+
+        //maybe error
         for (int i = 0; i < other.getContent().size(); i++) {  //delete other one
             delete other.getContent()[i];
         }
+        //
+
         for (int i = 0; i < other.getActionLog().size(); i++) {                 //Insert
             this->getActionLog().push_back(other.getActionLog()[i]);
             other.getActionLog()[i] = nullptr;    //delete other one

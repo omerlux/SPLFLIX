@@ -38,7 +38,7 @@ Watchable *Watchable::clone() {
 //---------------------Class Movie----------------------
 //Constructor
 Movie::Movie(long id, const std::string& name, int length, const std::vector<std::string> &tags) :
-        name(name), Watchable(id,length,tags) {}
+        Watchable(id,length,tags), name(name){}
 //Desctructor
 Movie::~Movie() {}
 //getName
@@ -47,7 +47,7 @@ const std::string& Movie::getName() const {     return name;    }
 std::string Movie::toString()  const {
     std::string&& tmp=this->getId()+" "+this->getName()+" "+
             std::to_string(this->getLength())+" minutes [";
-    for(int i=0; i<this->getTags().size()-1; i++)
+    for(int i=0; i<(int)this->getTags().size()-1; i++)
         tmp = tmp + this->getTags()[i]+", ";
     tmp = tmp + this->getTags().back()+"]";
     return (tmp) ;
@@ -65,7 +65,7 @@ Watchable* Movie::clone() {  return (new Movie(*this)); }
 //Constructor
 Episode::Episode(long id, const std::string& seriesName, int length,
         int season, int episode, const std::vector<std::string> &tags) :
-        seriesName(seriesName), season(season), episode(episode),  Watchable(id,length,tags) {}
+        Watchable(id,length,tags), seriesName(seriesName), season(season),episode(episode), nextEpisodeId(0) {}
 //Destructor
 Episode::~Episode() {}
 //getSeriesName
@@ -81,7 +81,7 @@ std::string Episode::toString()  const {
     std::string&& tmp=this->getId()+" "+this->getSeriesName()
             +" S"+to_string(this->getSeason())+"E"+to_string(this->getEpisode())+" "+
             std::to_string(this->getLength())+" minutes [";
-    for(int i=0; i<this->getTags().size()-1; i++)
+    for(int i=0; i<(int)this->getTags().size()-1; i++)
         tmp = tmp + this->getTags()[i]+", ";
     tmp = tmp + this->getTags().back()+"]";
     return (tmp);
