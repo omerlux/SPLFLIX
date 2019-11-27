@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include "../include/json.hpp"
 #include "../include/Session.h"

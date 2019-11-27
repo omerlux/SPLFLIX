@@ -318,6 +318,15 @@ void Watch::act(Session &sess) {
         delete next_watch;
     }
 }
+//PrintWatchHistory toString()
+std::string Watch::toString() const {
+    std::string str;
+    if(this->getStatus()==ERROR)
+        str="Watch "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
+    else
+        str="Watch "+to_string(this->getStatus())+"\n";
+    return (str);
+}
 // Watch Clone
 BaseAction* Watch::clone() {  return (new Watch(*this)); }
 
