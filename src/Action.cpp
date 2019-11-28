@@ -12,13 +12,13 @@ using namespace std;
 
 //---------------------Class BaseAction----------------------
 //Constructor
-BaseAction::BaseAction(): status(PENDING), errorMsg(nullptr) {}
+BaseAction::BaseAction(): errorMsg(""), status(PENDING) {}
 //Destructor
 BaseAction::~BaseAction() {}
 //Copy Constructor
-BaseAction::BaseAction(const BaseAction &other) {}
+BaseAction::BaseAction(const BaseAction &other): errorMsg(other.errorMsg), status(other.status) {}
 //Move Constructor
-BaseAction::BaseAction(BaseAction &&other) {}
+BaseAction::BaseAction(BaseAction &&other): errorMsg(other.errorMsg), status(other.status) {}
 //Copy Assignment
 BaseAction &BaseAction::operator=(const BaseAction &other) {    return *this;}
 //Move Assignment
@@ -48,7 +48,8 @@ void CreateUser::act(Session &sess) {
     std::string alg;
     edit >> alg;
     //end word by word
-    if(sess.getUserMap().find(name) != sess.getUserMap().end()){  //check if NOT exists in the usermap
+
+    if(   !(sess.getUserMap())[name] ){  //check if NOT exists in the usermap
         if(alg.compare("len")==0){
             User* usr = new LengthRecommenderUser(name);
             sess.getUserMap().insert({name,usr});        //adding user to userMap
@@ -96,8 +97,8 @@ BaseAction* CreateUser::clone() {  return (new CreateUser(*this)); }
 void ChangeActiveUser::act(Session &sess) {
     sess.addAction(this);               //added action to actionLog of the running session
     std::string name = sess.getSesLine();
-    if (sess.getUserMap().find(name) != sess.getUserMap().end()) { //check if NOT exists in the usermap
-        sess.setActiveUser(  sess.getUserMap().find(name)->second  ); //this is the User*
+    if ( !(sess.getUserMap())[name]  ){   //check if NOT exists in the usermap
+        sess.setActiveUser( sess.getUserMap()[name] ); //sess.setActiveUser(  sess.getUserMap().find(name)->second  ); //this is the User*
     }
     else{    error("there is no such user!");   }
 
@@ -127,9 +128,9 @@ BaseAction* ChangeActiveUser::clone() {  return (new ChangeActiveUser(*this)); }
 void DeleteUser::act(Session &sess) {
     sess.addAction(this);               //added action to actionLog of the running session
     std::string name = sess.getSesLine();
-    if (sess.getUserMap().find(name) != sess.getUserMap().end()) { //check if NOT exists in the usermap
-        if(sess.getUserMap().find(name)->second == sess.getActiveUser())
-            sess.setActiveUser( sess.getUserMap().find("default")->second  );// if is active - set default
+    if (!(sess.getUserMap())[name]) { //check if NOT exists in the usermap
+        if(sess.getUserMap()[name] == sess.getActiveUser())
+            sess.setActiveUser( sess.getUserMap()["default"]  );// if is active - set default
         sess.getUserMap().erase(name);           //delete name from the users
     }
     else{    error("there is no such user!");   }
@@ -166,9 +167,9 @@ void DuplicateUser::act(Session &sess) {
     std::string new_name;
     edit >> new_name;
     //end word by word
-    if(sess.getUserMap().find(orig_name) == sess.getUserMap().end()){  //check if orig EXISTS in the usermap
-        if(sess.getUserMap().find(new_name) != sess.getUserMap().end()) {//check if new is NOT in the usermap
-            std::string class_type = typeid( sess.getUserMap().find(orig_name)->second ).name(); //get class #name
+    if(!(sess.getUserMap())[orig_name]){  //check if orig EXISTS in the usermap
+        if(!(sess.getUserMap())[new_name]) {//check if new is NOT in the usermap
+            std::string class_type = typeid( sess.getUserMap()[orig_name] ).name(); //get class #name
                     // SHALLOW COPY @@@@@@@@@@@@@@@@@@@
             //User* new_usr = new User (*sess.getUserMap().find(orig_name)->second);         //temp copy usr
             //new_usr->setName(new_name);
@@ -176,19 +177,19 @@ void DuplicateUser::act(Session &sess) {
 
             if(class_type.at(2) == 'L'){
                 LengthRecommenderUser* new_usr =
-                        dynamic_cast<LengthRecommenderUser*>( sess.getUserMap().find(orig_name)->second); //Duplicate
+                        dynamic_cast<LengthRecommenderUser*>( sess.getUserMap()[orig_name]); //Duplicate
                 new_usr->setName(new_name);
                 sess.getUserMap().insert({new_name, new_usr});        //adding user to userMap
             }
             else if(class_type.at(2)=='R'){
                 RerunRecommenderUser* new_usr =
-                        dynamic_cast<RerunRecommenderUser*>( sess.getUserMap().find(orig_name)->second); //Duplicate
+                        dynamic_cast<RerunRecommenderUser*>( sess.getUserMap()[orig_name]); //Duplicate
                 new_usr->setName(new_name);
                 sess.getUserMap().insert({new_name, new_usr});        //adding user to userMap
             }
             else if(class_type.at(2)=='G'){ // can be else - just to clearify
                 GenreRecommenderUser* new_usr =
-                        dynamic_cast<GenreRecommenderUser*>( sess.getUserMap().find(orig_name)->second); //Duplicate
+                        dynamic_cast<GenreRecommenderUser*>( sess.getUserMap()[orig_name]); //Duplicate
                 new_usr->setName(new_name);
                 sess.getUserMap().insert({new_name, new_usr});        //adding user to userMap
            }
@@ -224,7 +225,7 @@ BaseAction* DuplicateUser::clone() {  return (new DuplicateUser(*this)); }
 //PrintContentList act
 void PrintContentList::act(Session &sess) {
     sess.addAction(this);               //added action to actionLog of the running session
-    for(int i=0; i<sess.getContent().size(); i++){
+    for(int i=0; i<(int)sess.getContent().size(); i++){
         cout<<sess.getContent()[i]->toString()<<"\n";
     }
     /// when will error occure? ...
@@ -254,9 +255,9 @@ BaseAction* PrintContentList::clone() {  return (new PrintContentList(*this)); }
 void PrintWatchHistory::act(Session &sess) {
     sess.addAction(this);               //added action to actionLog of the running session
     std::string name = sess.getSesLine();
-    if (sess.getUserMap().find(name) != sess.getUserMap().end()) { //check if NOT exists in the usermap
-        if(sess.getUserMap().find(name)->second == sess.getActiveUser()) {
-            for(int i=0; i<sess.getActiveUser()->get_history().size(); i++)
+    if (!(sess.getUserMap())[name]) { //check if NOT exists in the usermap
+        if(sess.getUserMap()[name] == sess.getActiveUser()) {
+            for(int i=0; i<(int)sess.getActiveUser()->get_history().size(); i++)
                 cout<< sess.getActiveUser()->get_history_i(i)->toString() <<"\n";
         }
         else{   error(name+" is not the active user!");  }
@@ -289,7 +290,7 @@ BaseAction* PrintWatchHistory::clone() {  return (new PrintWatchHistory(*this));
 void Watch::act(Session &sess) {
     sess.addAction(this);               //added action to actionLog of the running session
     int id = std::stoi(sess.getSesLine());       // Convert string to int
-    if (id < 1 | id > sess.getContent().size()) {
+    if ((id < 1) | (id > (int)sess.getContent().size())) {
           error("id is illegal!");
           //line initialization
           std::string str = "";
@@ -303,7 +304,7 @@ void Watch::act(Session &sess) {
 
         std::string ans;
         getline(std::cin, ans);
-        while (ans.compare("y") != 0 | ans.compare("n") != 0) {
+        while ((ans.compare("y") != 0) | (ans.compare("n") != 0)) {
             getline(std::cin, ans);
             cout << "Choose only y or n.\n";
         }
@@ -334,7 +335,7 @@ BaseAction* Watch::clone() {  return (new Watch(*this)); }
 //PrintActionsLog act
 void PrintActionsLog::act(Session &sess) {
     sess.addAction(this);               //added action to actionLog of the running session
-    for (int i=0; i<sess.getActionLog().size(); i++)
+    for (int i=0; i<(int)sess.getActionLog().size(); i++)
         cout<<sess.getActionLog()[i]->toString() << "\n";
     complete();
 

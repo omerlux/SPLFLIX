@@ -45,7 +45,7 @@ Movie::~Movie() {}
 const std::string& Movie::getName() const {     return name;    }
 //toString
 std::string Movie::toString()  const {
-    std::string&& tmp=this->getId()+" "+this->getName()+" "+
+    std::string&& tmp=to_string(this->getId())+" "+this->getName()+" "+
             std::to_string(this->getLength())+" minutes [";
     for(int i=0; i<(int)this->getTags().size()-1; i++)
         tmp = tmp + this->getTags()[i]+", ";
@@ -78,7 +78,7 @@ int Episode::getEpisode() const {                       return episode;   }
 void Episode::setNextEpisodeId(long nxt_id)  {          this->nextEpisodeId =(nxt_id);            }
 //toString
 std::string Episode::toString()  const {
-    std::string&& tmp=this->getId()+" "+this->getSeriesName()
+    std::string&& tmp=to_string(this->getId())+" "+this->getSeriesName()
             +" S"+to_string(this->getSeason())+"E"+to_string(this->getEpisode())+" "+
             std::to_string(this->getLength())+" minutes [";
     for(int i=0; i<(int)this->getTags().size()-1; i++)

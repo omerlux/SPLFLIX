@@ -12,27 +12,26 @@ using json = nlohmann::json;
 
 //---------------------Class Session----------------------
 //Constructor
-Session::Session(const std::string &configFilePath) {
-    running = false;
-    line="";
-    std::ifstream i("../config1.json");
+Session::Session(const std::string &configFilePath): content (0, nullptr), actionsLog(0, nullptr),
+    userMap{}, activeUser(nullptr), running(false), line("") {
+    std::ifstream i("../config2.json");
     json j;
     i >>j;
     //switch() /// import json parameters for watchables
-    for(int k=0; k<j["movies"].size(); k++){
-        this->content.push_back(new Movie(this->content.size()+1,j["movies"][k]["name"],
+    for(int k=0; k<(int)j["movies"].size(); k++){
+        this->content.push_back(new Movie((int)this->content.size()+1,j["movies"][k]["name"],
                 j["movies"][k]["length"],j["movies"][k]["tags"]));  ///WATCH FOR ERRORS WITH USING JSON
     }
-    for(int k=0; k<j["tv_series"].size(); k++) {
-        for (int s = 1; s <= j["tv_series"][k]["seasons"].size(); s++) {
+    for(int k=0; k<(int)j["tv_series"].size(); k++) {
+        for (int s = 1; s <= (int)j["tv_series"][k]["seasons"].size(); s++) {
             for (int e = 1; e <= j["tv_series"][k]["seasons"][s - 1]; e++) {
-                Episode* EP = new Episode(this->content.size() + 1, j["tv_series"][k]["name"],
+                Episode* EP = new Episode((int)this->content.size() + 1, j["tv_series"][k]["name"],
                         j["tv_series"][k]["episode_length"], s, e,j["tv_series"][k]["tags"]);
                 this->content.push_back(EP);
-                if(s==j["tv_series"][k]["seasons"].size() &  e==j["tv_series"][k]["seasons"][s - 1] )
+                if((s==(int)j["tv_series"][k]["seasons"].size()) &  (e==j["tv_series"][k]["seasons"][s - 1]) )
                     EP->setNextEpisodeId(0);                        //LAST EPISODE AT TV SERIES
                 else
-                    EP->setNextEpisodeId(this->content.size()+2);
+                    EP->setNextEpisodeId((int)this->content.size()+2);
             }
         }
     }
@@ -46,10 +45,10 @@ Session::Session(const std::string &configFilePath) {
 }
 //Destructor
 Session::~Session() {
-    for(int i=0; i<this->getContent().size(); i++){                 //DELETE
+    for(int i=0; i<(int)this->getContent().size(); i++){                 //DELETE
         delete this->getContent()[i];
     }
-    for(int i=0; i<this->getActionLog().size(); i++){               //DELETE
+    for(int i=0; i<(int)this->getActionLog().size(); i++){               //DELETE
         delete this->getActionLog()[i];
     }
     this->getUserMap().erase(this->getUserMap().begin(),this->getUserMap().end());  //DELETE
@@ -57,14 +56,15 @@ Session::~Session() {
     this->activeUser=nullptr;
 }
 //Copy Constructor
-Session::Session(Session &other): running(other.running), line(other.line) {
-    for(int i=0; i<other.getContent().size(); i++){                 //Insert
+Session::Session(Session &other): content(other.content), actionsLog(other.actionsLog), userMap(other.userMap),
+    activeUser(other.activeUser), running(other.running), line(other.line) {
+    for(int i=0; i<(int)other.getContent().size(); i++){                 //Insert
         this->getContent().push_back( other.getContent()[i]->clone() );
 
        /*Watchable* cpy = Watchable(other.getContent()[i]);
        this->getContent().push_back(other.getContent()[i]); */
     }
-    for(int i=0; i<other.getActionLog().size(); i++){                 //Insert
+    for(int i=0; i<(int)other.getActionLog().size(); i++){                 //Insert
         this->getActionLog().push_back(  other.getActionLog()[i]->clone() );
     }
     /*for ( unsigned i = 0; i < other.getUserMap().bucket_count(); ++i) {
@@ -107,9 +107,10 @@ Session::Session(Session &other): running(other.running), line(other.line) {
     }
 }
 //Move Constructor
-Session::Session(Session &&other): running(other.running), line(other.line) {
+Session::Session(Session &&other): content(other.content), actionsLog(other.actionsLog), userMap(other.userMap),
+    activeUser(other.activeUser), running(other.running), line(other.line) {
     if(this!=&other) {
-        for (int i = 0; i < other.getContent().size(); i++) {                 //Insert
+        for (int i = 0; i < (int)other.getContent().size(); i++) {                 //Insert
             this->getContent().push_back(other.getContent()[i]);
             other.getContent()[i] = nullptr;  //delete other one
             /*Watchable* cpy = Watchable(other.getContent()[i]);
@@ -117,16 +118,16 @@ Session::Session(Session &&other): running(other.running), line(other.line) {
         }
 
         //maybe error
-        for (int i = 0; i < other.getContent().size(); i++) {  //delete other one
+        for (int i = 0; i < (int)other.getContent().size(); i++) {  //delete other one
             delete other.getContent()[i];
         }
         //
 
-        for (int i = 0; i < other.getActionLog().size(); i++) {                 //Insert
+        for (int i = 0; i < (int)other.getActionLog().size(); i++) {                 //Insert
             this->getActionLog().push_back(other.getActionLog()[i]);
             other.getActionLog()[i] = nullptr;    //delete other one
         }
-        for (int i = 0; i < other.getActionLog().size(); i++) {
+        for (int i = 0; i < (int)other.getActionLog().size(); i++) {
             delete other.getActionLog()[i];     //delete other one
         }
 
@@ -148,17 +149,17 @@ Session &Session::operator=(Session &other){
     if(this!=&other) {
         this->running = other.running;
         this->line = other.line;
-        for (int i = 0; i < this->getContent().size(); i++) {                 //delete
+        for (int i = 0; i < (int)this->getContent().size(); i++) {                 //delete
             delete this->getContent()[i];
         }
-        for (int i = 0; i < other.getContent().size(); i++) {                 //Insert
+        for (int i = 0; i < (int)other.getContent().size(); i++) {                 //Insert
             this->getContent().push_back(other.getContent()[i]->clone());                       //CLONE
         }
 
-        for (int i = 0; i < other.getActionLog().size(); i++) {               //delete
+        for (int i = 0; i < (int)other.getActionLog().size(); i++) {               //delete
             delete other.getActionLog()[i];
         }
-        for (int i = 0; i < other.getActionLog().size(); i++) {                 //Insert
+        for (int i = 0; i < (int)other.getActionLog().size(); i++) {                 //Insert
             this->getActionLog().push_back(other.getActionLog()[i]->clone());              //CLONE
         }
 
@@ -184,25 +185,25 @@ Session &Session::operator=(Session &other){
 Session &Session::operator=(Session &&other) {
     this->running=other.running;
     this->line=other.line;
-    for(int i=0; i<this->getContent().size(); i++){                 //delete
+    for(int i=0; i<(int)this->getContent().size(); i++){                 //delete
         delete this->getContent()[i];
     }
-    for(int i=0; i<other.getContent().size(); i++) {                 //Insert
+    for(int i=0; i<(int)other.getContent().size(); i++) {                 //Insert
         this->getContent().push_back(other.getContent()[i]);
         other.getContent()[i]=nullptr;  //delete other one
     }
-    for(int i=0; i<other.getContent().size(); i++){  //delete other one
+    for(int i=0; i<(int)other.getContent().size(); i++){  //delete other one
         delete other.getContent()[i];
     }
 
-    for(int i=0; i<this->getActionLog().size(); i++){               //delete
+    for(int i=0; i<(int)this->getActionLog().size(); i++){               //delete
         delete this->getActionLog()[i];
     }
-    for(int i=0; i<other.getActionLog().size(); i++){                 //Insert
+    for(int i=0; i<(int)other.getActionLog().size(); i++){                 //Insert
         this->getActionLog().push_back(  other.getActionLog()[i]);
         other.getActionLog()[i]=nullptr;    //delete other one
     }
-    for(int i=0; i<other.getActionLog().size(); i++){
+    for(int i=0; i<(int)other.getActionLog().size(); i++){
         delete other.getActionLog()[i];     //delete other one
     }
 
@@ -228,7 +229,7 @@ Session &Session::operator=(Session &&other) {
 
 //Start
 void Session::start() {
-    std::cout <<"SPFLIX is now on!";
+    std::cout <<"SPFLIX is now on!\n";
     Session::setRunStat(true); // program is running
 
     ///MAIN LOOP
