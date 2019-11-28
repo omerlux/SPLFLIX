@@ -242,9 +242,11 @@ void PrintContentList::act(Session &sess) {
 std::string PrintContentList::toString() const {
     std::string str;
     if(this->getStatus()==ERROR)
-        str="PrintContentList "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
+        str="PrintContentList ERROR: "+this->getErrorMsg()+"\n";
+    else if(this->getStatus()==COMPLETED)
+        str="PrintContentList COMPLETED\n";
     else
-        str="PrintContentList "+to_string(this->getStatus())+"\n";
+        str="PrintContentList PENDING\n";
     return (str);
 }
 // PrintContentList Clone
