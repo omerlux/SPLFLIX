@@ -56,7 +56,8 @@ Session::~Session() {
     this->activeUser=nullptr;
 }
 //Copy Constructor
-Session::Session(Session &other): running(other.running), line(other.line) {
+Session::Session(Session &other): content(),actionsLog(),userMap(),activeUser(),
+        running(other.running),line(other.line){
     for(int i=0; i<(int)other.getContent().size(); i++){                 //Insert
         Watchable* tmp = other.content[i]->clone();
         this->content.push_back( tmp );
@@ -85,7 +86,8 @@ Session::Session(Session &other): running(other.running), line(other.line) {
     }
 }
 //Move Constructor
-Session::Session(Session &&other) {
+Session::Session(Session &&other): content(), actionsLog(), userMap(),
+        activeUser(), running(), line(){
     if(this!=&other) {
         running = other.running;
         line = other.line;
@@ -294,7 +296,7 @@ void Session::nextCommand(std::string &currLine) {
         BaseAction* p = new PrintWatchHistory();
         p->act(*this);                      //now p is connected to ActionLog, and more stuff
     }
-    else if(word.compare("watch")==0){              /// <<<<<<<<<<< build it
+    else if(word.compare("watch")==0){
         editedLine>>line;
         BaseAction* p = new Watch();
         p->act(*this);                      //now p is connected to ActionLog, and more stuff

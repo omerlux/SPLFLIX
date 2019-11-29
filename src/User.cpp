@@ -51,7 +51,7 @@ void User::set_history_i(int i, Watchable * newwatch) {
 void User::setName(std::string &new_name) {                        this->name=new_name;   }
 //create Watched vector
 void User::CreateWatched(Session &sess) {
-    this->watched = std::vector<bool>(sess.getContent().size(), false);                 //initiate bool aray
+    this->watched = std::vector<bool>((int)sess.getContent().size(), false);                 //initiate bool aray
 }
 //getWatched
 std::vector<bool> User::getWatched (){                             return this->watched;  }
