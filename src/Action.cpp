@@ -66,7 +66,7 @@ void CreateUser::act(Session &sess) {
             usr->CreateWatched(sess);                 //create watched vector
         }
         else{
-            error("unknown recommendation algorithm!");
+            error("invalid recommendation algorithm!");
         }
     }
     else{    error("user name is taken!");    }
@@ -75,7 +75,7 @@ void CreateUser::act(Session &sess) {
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else {
         this->complete();
-        cout<< "TEST: user created named "+name+"\n";           ///TEST
+        cout<< "Message: user created named "+name+"\n";           ///Message
     }
     //line initialization
     std::string str = "";
@@ -110,7 +110,7 @@ void ChangeActiveUser::act(Session &sess) {
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else{
         this->complete();
-        cout<< "TEST: active user changed to "+name+"\n";          ///TEST
+        cout<< "Message: active user changed to "+name+"\n";          ///Message
     }
 
     //line initialization
@@ -146,7 +146,7 @@ void DeleteUser::act(Session &sess) {
     if(this->getStatus()==ERROR)
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else{
-        cout<< "TEST: deleted user: "+name+"\n";          ///TEST
+        cout<< "Message: deleted user: "+name+"\n";          ///Message
         this->complete();
     }
 
@@ -185,7 +185,7 @@ void DuplicateUser::act(Session &sess) {
             User* usr = sess.getUserMap()[orig_name]->clone();
             usr->setName(new_name);
             sess.getUserMap().insert( {new_name , usr} );
-            cout<< "TEST: duplicated user: "+new_name+" is a copy of "+orig_name+"\n";          ///TEST
+            cout<< "Message: duplicated user: "+new_name+" is a copy of "+orig_name+"\n";          ///Message
             usr = nullptr;
         }
         else{
@@ -306,10 +306,10 @@ void Watch::act(Session &sess) {
 
             std::string ans;
             getline(std::cin, ans);
-            while (!((ans.compare("y") == 0) | (ans.compare("n") == 0))) {
-                cout << "Choose only y or n.\n";
-                getline(std::cin, ans);
-            }
+            //while (!((ans.compare("y") == 0) | (ans.compare("n") == 0))) {
+            //   cout << "Choose only y or n.\n";
+            //    getline(std::cin, ans);
+            //}
             if (ans.compare("y") == 0) {
                 std::string tmp_str = "watch " + to_string(next_watch->getId());
                 sess.setSesLine(tmp_str);

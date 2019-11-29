@@ -32,7 +32,6 @@ User *User::clone() {
     return nullptr;
 }
 
-
 //getName
 std::string User::getName() const{                                 return name;   }
 //getHistory
@@ -73,23 +72,12 @@ void User::addGenre(Watchable *currWatch) {
         for(int k=0; k<((int)this->getGenres().size() & !found); k++) {
             if (currWatch->getTags()[i].compare(this->getGenres()[k].second) == 0) {
                 this->getGenres()[k].first++;
-                /*
-                if ((mstWatchedGenre->first < this->getGenres()[k].first) |  // now this is bigger
-                    ((mstWatchedGenre->first == this->getGenres()[k].first) &
-                     ((mstWatchedGenre->second).compare(this->getGenres()[k].second) > 0)))
-                    // or the same size but lexicographSHTUT
-                    mstWatchedGenre = &this->getGenres()[k];*/
                 found = true;
             }
         }
         if(!found) {                   // no kind of this tag yet...
             std::pair<int,std::string> newPair(1, currWatch->getTags()[i]);
             this->getGenres().push_back(newPair);
-           /* if((mstWatchedGenre==nullptr) ||                                   // no genre chosen yet
-            ((mstWatchedGenre->second==newPair.second) & ((mstWatchedGenre->first).compare(newPair.first)>0)))
-                                                                            // or the same size but lexicographSHTUT
-                mstWatchedGenre=&newPair;
-            */
         }
     }
 }

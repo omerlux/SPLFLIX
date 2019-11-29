@@ -22,7 +22,6 @@ using namespace std;
 //Move Assignment
     Watchable& Watchable::operator=(Watchable &&other){         return *this;    }
 
-
 //getId
 long Watchable::getId() const {    return id;   }
 //getLength
@@ -33,7 +32,6 @@ const std::vector <std::string>& Watchable::getTags() const{   return tags;  }
 Watchable *Watchable::clone() {
     return nullptr;
 }
-
 
 //---------------------Class Movie----------------------
 //Constructor
@@ -103,23 +101,6 @@ Watchable* Episode::getNextWatchable(Session &sess) const {
     else{
         return sess.getActiveUser()->getRecommendation(sess);    //Last episode
     }
-/*
-    std::string s = typeid(sess.getActiveUser()).name();
-    if(this->nextEpisodeId!=0){
-        if(typeid(sess.getActiveUser()).name()[2]  == 'L'){ //
-            sess.getActiveUser()->setWatched_i(this->getId()-1 );   //setting watched table
-            sess.getActiveUser()->setAvg(this->getLength()); //compute avg
-        }
-        else if(typeid(sess.getActiveUser()).name()[2]  == 'G'){
-            sess.getActiveUser()->setWatched_i(this->getId()-1 );   //setting watch table
-            sess.getActiveUser()->addGenre((Watchable *) this);        //adding genres list
-        }
-        return sess.getContent()[this->nextEpisodeId];               //TV series have more episodes
-    }
-    else{
-        return sess.getActiveUser()->getRecommendation(sess);    //Last episode
-    }
-    */
 }
 // Episode Clone
 Watchable* Episode::clone() {  return (new Episode(*this)); }

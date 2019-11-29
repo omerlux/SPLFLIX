@@ -14,10 +14,10 @@ using json = nlohmann::json;
 //Constructor
 Session::Session(const std::string &configFilePath): content (0, nullptr), actionsLog(0, nullptr),
     userMap(), activeUser(nullptr), running(false), line("") {
-    std::ifstream i("../config2.json");
+    std::ifstream i(configFilePath);
     json j;
     i >>j;
-    //switch() /// import json parameters for watchables
+    /// import json parameters for watchables
     for(int k=0; k<(int)j["movies"].size(); k++){
         this->content.push_back(new Movie((int)this->content.size()+1,j["movies"][k]["name"],
                 j["movies"][k]["length"],j["movies"][k]["tags"]));  ///WATCH FOR ERRORS WITH USING JSON
@@ -61,44 +61,12 @@ Session::Session(Session &other): running(other.running), line(other.line) {
         Watchable* tmp = other.content[i]->clone();
         this->content.push_back( tmp );
         tmp=nullptr;
-
-       /*Watchable* cpy = Watchable(other.getContent()[i]);
-       this->getContent().push_back(other.getContent()[i]); */
     }
     for(int i=0; i<(int)other.getActionLog().size(); i++){                 //Insert
         BaseAction* tmp = other.actionsLog[i]->clone();
         this->actionsLog.push_back(  tmp );
         tmp=nullptr;
     }
-    /*for ( unsigned i = 0; i < other.getUserMap().bucket_count(); ++i) {
-            for ( auto local_it = other.getUserMap().begin(i); local_it!= other.getUserMap().end(i); ++local_it ) {
-                User* old_usr = local_it->second;
-                std::string old_name = local_it->first;
-                std::string class_type = typeid( old_usr ).name(); //get class #name
-                if(class_type.at(2) == 'L'){
-                    LengthRecommenderUser* new_usr =
-                            dynamic_cast<LengthRecommenderUser*>( old_usr); //Duplicate
-                    this->getUserMap().insert({old_name, new_usr});        //adding user to userMap
-                    if(other.getActiveUser() == old_usr)
-                        this->setActiveUser(new_usr);    // Active user
-                }
-                else if(class_type.at(2)=='R'){
-                    RerunRecommenderUser* new_usr =
-                            dynamic_cast<RerunRecommenderUser*>( old_usr); //Duplicate
-                    this->getUserMap().insert({old_name, new_usr});        //adding user to userMap
-                    if(other.getActiveUser() == old_usr)
-                        this->setActiveUser(new_usr);   // Active user
-                }
-                else if(class_type.at(2)=='G') { // can be else - just to clearify
-                    GenreRecommenderUser *new_usr =
-                            dynamic_cast<GenreRecommenderUser *>( old_usr); //Duplicate
-                    this->getUserMap().insert({old_name, new_usr});        //adding user to userMap
-                    if(other.getActiveUser() == old_usr)
-                        this->setActiveUser(new_usr);    // Active user
-                }
-            }
-    }
-     */
     for ( unsigned i = 0; i < other.getUserMap().bucket_count(); ++i) {
         for (auto local_it = other.getUserMap().begin(i); local_it != other.getUserMap().end(i); ++local_it) {
             User *new_usr = local_it->second->clone();
@@ -117,9 +85,10 @@ Session::Session(Session &other): running(other.running), line(other.line) {
     }
 }
 //Move Constructor
-Session::Session(Session &&other): content(other.content), actionsLog(other.actionsLog), userMap(other.userMap),
-    activeUser(other.activeUser), running(other.running), line(other.line) {
+Session::Session(Session &&other) {
     if(this!=&other) {
+        running = other.running;
+        line = other.line;
         for (int i = 0; i < (int)other.getContent().size(); i++) {                 //Insert
             this->getContent().push_back(other.getContent()[i]);
             other.getContent()[i] = nullptr;  //delete other one
@@ -340,7 +309,6 @@ void Session::nextCommand(std::string &currLine) {
     }
     else{   cout<<"Error - no such command!\n";    }
 }
-
 
 /*  createuser
 *  changeuser
