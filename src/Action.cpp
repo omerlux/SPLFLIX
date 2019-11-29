@@ -49,7 +49,7 @@ void CreateUser::act(Session &sess) {
     edit >> alg;
     //end word by word
 
-    if(   !(sess.getUserMap())[name] ){  //check if NOT exists in the usermap
+    if(   (sess.getUserMap()).find(name)==sess.getUserMap().end()  ){  //check if NOT exists in the usermap
         if(alg.compare("len")==0){
             User* usr = new LengthRecommenderUser(name);
             sess.getUserMap().insert({name,usr});        //adding user to userMap
@@ -66,10 +66,10 @@ void CreateUser::act(Session &sess) {
             usr->CreateWatched(sess);                 //create watched vector
         }
         else{
-            error("unknown recommendation algorithm!\n");
+            error("unknown recommendation algorithm!");
         }
     }
-    else{    error("user name is taken!\n");    }
+    else{    error("user name is taken!");    }
 
     if(this->getStatus()==ERROR)
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
@@ -100,8 +100,9 @@ BaseAction* CreateUser::clone() {  return (new CreateUser(*this)); }
 void ChangeActiveUser::act(Session &sess) {
     sess.addAction(this);               //added action to actionLog of the running session
     std::string name = sess.getSesLine();
-    if ( !(sess.getUserMap())[name]  ){   //check if NOT exists in the usermap
-        sess.setActiveUser( sess.getUserMap()[name] ); //sess.setActiveUser(  sess.getUserMap().find(name)->second  ); //this is the User*
+    if (  (sess.getUserMap()).find(name)!=sess.getUserMap().end()  ){   //check if exists in the usermap
+        User* usr = sess.getUserMap()[name];
+        sess.setActiveUser( usr ); //sess.setActiveUser(  sess.getUserMap().find(name)->second  ); //this is the User*
     }
     else{    error("there is no such user!");   }
 
@@ -109,7 +110,7 @@ void ChangeActiveUser::act(Session &sess) {
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else{
         this->complete();
-        cout<< "TEST: user changed named "+name+"\n";          ///TEST
+        cout<< "TEST: active user changed to "+name+"\n";          ///TEST
     }
 
     //line initialization
@@ -135,7 +136,7 @@ BaseAction* ChangeActiveUser::clone() {  return (new ChangeActiveUser(*this)); }
 void DeleteUser::act(Session &sess) {
     sess.addAction(this);               //added action to actionLog of the running session
     std::string name = sess.getSesLine();
-    if (!(sess.getUserMap())[name]) { //check if NOT exists in the usermap
+    if ( (sess.getUserMap()).find(name)!=sess.getUserMap().end()) { //check if exists in the usermap
         if(sess.getUserMap()[name] == sess.getActiveUser())
             sess.setActiveUser( sess.getUserMap()["default"]  );// if is active - set default
         sess.getUserMap().erase(name);           //delete name from the users
@@ -145,7 +146,7 @@ void DeleteUser::act(Session &sess) {
     if(this->getStatus()==ERROR)
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else{
-        cout<< "TEST: user deleted named "+name+"\n";          ///TEST
+        cout<< "TEST: deleted user: "+name+"\n";          ///TEST
         this->complete();
     }
 
@@ -178,38 +179,20 @@ void DuplicateUser::act(Session &sess) {
     std::string new_name;
     edit >> new_name;
     //end word by word
-    if(!(sess.getUserMap())[orig_name]){  //check if orig EXISTS in the usermap
-        if(!(sess.getUserMap())[new_name]) {//check if new is NOT in the usermap
-            std::string class_type = typeid( sess.getUserMap()[orig_name] ).name(); //get class #name
-                    // SHALLOW COPY @@@@@@@@@@@@@@@@@@@
-            //User* new_usr = new User (*sess.getUserMap().find(orig_name)->second);         //temp copy usr
-            //new_usr->setName(new_name);
-            //sess.getUserMap().insert({new_name, new_usr});        //adding user to userMap
-
-            if(class_type.at(2) == 'L'){
-                LengthRecommenderUser* new_usr =
-                        dynamic_cast<LengthRecommenderUser*>( sess.getUserMap()[orig_name]); //Duplicate
-                new_usr->setName(new_name);
-                sess.getUserMap().insert({new_name, new_usr});        //adding user to userMap
-            }
-            else if(class_type.at(2)=='R'){
-                RerunRecommenderUser* new_usr =
-                        dynamic_cast<RerunRecommenderUser*>( sess.getUserMap()[orig_name]); //Duplicate
-                new_usr->setName(new_name);
-                sess.getUserMap().insert({new_name, new_usr});        //adding user to userMap
-            }
-            else if(class_type.at(2)=='G'){ // can be else - just to clearify
-                GenreRecommenderUser* new_usr =
-                        dynamic_cast<GenreRecommenderUser*>( sess.getUserMap()[orig_name]); //Duplicate
-                new_usr->setName(new_name);
-                sess.getUserMap().insert({new_name, new_usr});        //adding user to userMap
-           }
+    if( (sess.getUserMap()).find(orig_name)!=sess.getUserMap().end()){  //check if orig EXISTS in the usermap
+        if(   (sess.getUserMap()).find(new_name)==sess.getUserMap().end() ) {//check if new is NOT in the usermap
+            //29.11 11:20
+            User* usr = sess.getUserMap()[orig_name]->clone();
+            usr->setName(new_name);
+            sess.getUserMap().insert( {new_name , usr} );
+            cout<< "TEST: duplicated user: "+new_name+" is a copy of "+orig_name+"\n";          ///TEST
+            usr = nullptr;
         }
         else{
             error("new name is taken!");            ///new name not available
         }
     }
-    else{    error("there is no such user!");    } ///original name not found
+    else{    error("the original user doesn't exist!");    } ///original name not found
 
     if(this->getStatus()==ERROR)
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
@@ -269,17 +252,11 @@ BaseAction* PrintContentList::clone() {  return (new PrintContentList(*this)); }
 //PrintWatchHistory act
 void PrintWatchHistory::act(Session &sess) {
     sess.addAction(this);               //added action to actionLog of the running session
-    std::string name = sess.getSesLine();
-    if (!(sess.getUserMap())[name]) { //check if NOT exists in the usermap
-        if(sess.getUserMap()[name] == sess.getActiveUser()) {
-            for(int i=0; i<(int)sess.getActiveUser()->get_history().size(); i++)
-                cout<< sess.getActiveUser()->get_history_i(i)->toString() <<"\n";
-        }
-        else{   error(name+" is not the active user!");  }
-    }
-    else{    error("there is no such user!");   }
+    cout<< "Watch history for "<<sess.getActiveUser()->getName()<<"\n";
+    for(int i=0; i<(int)sess.getActiveUser()->get_history().size(); i++)
+         cout<< i+1 <<". " << sess.getActiveUser()->get_history_i(i)->only_name() <<"\n";
 
-    if(this->getStatus()==ERROR)
+    if(this->getStatus()==ERROR)    /// When will it be?
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else
         this->complete();
@@ -309,31 +286,40 @@ void Watch::act(Session &sess) {
     int id = std::stoi(sess.getSesLine());       // Convert string to int
     if ((id < 1) | (id > (int)sess.getContent().size())) {
           error("id is illegal!");
+          cout<< "Error - id is illegal!\n";
           //line initialization
           std::string str = "";
           sess.setSesLine(str);
     }
     else {
-        cout << "Watching " << sess.getContent()[id-1]->toString() << "\n";
-        sess.getActiveUser()->get_history().push_back(sess.getContent()[id-1]);       //adding the watched to history
+        cout << "Watching " << sess.getContent()[id-1]->only_name() << "\n";
+        sess.getActiveUser()->pushWatchHistory(  sess.getContent()[id-1]  );   //adding the watched to history
         Watchable *next_watch = sess.getContent()[id-1]->getNextWatchable(sess);
-        cout << "We recommend watching " << next_watch->only_name() << ", continue watching? [y/n]\n";    //ask recommendation
-
-        std::string ans;
-        getline(std::cin, ans);
-        while ((ans.compare("y") != 0) | (ans.compare("n") != 0)) {
-            getline(std::cin, ans);
-            cout << "Choose only y or n.\n";
-        }
-        if (ans.compare("y") == 0) {
-            std::string tmp_str = "watch " + next_watch->getId();
-            sess.setSesLine(tmp_str);
-        }
-        else{
+        if(next_watch==nullptr) {
+            cout << "We don't have any new recommendation for you.\n";
             std::string str = "";
             sess.setSesLine(str);
         }
-        delete next_watch;
+        else {
+            cout << "We recommend watching " << next_watch->only_name()
+                 << ", continue watching? [y/n]\n";    //ask recommendation
+
+            std::string ans;
+            getline(std::cin, ans);
+            while (!((ans.compare("y") == 0) | (ans.compare("n") == 0))) {
+                cout << "Choose only y or n.\n";
+                getline(std::cin, ans);
+            }
+            if (ans.compare("y") == 0) {
+                std::string tmp_str = "watch " + to_string(next_watch->getId());
+                sess.setSesLine(tmp_str);
+            } else {
+                std::string str = "";
+                sess.setSesLine(str);
+            }
+        }
+        complete();
+        next_watch=nullptr;
     }
 }
 //Watch toString()
@@ -355,7 +341,7 @@ BaseAction* Watch::clone() {  return (new Watch(*this)); }
 void PrintActionsLog::act(Session &sess) {
     sess.addAction(this);               //added action to actionLog of the running session
     for (int i=0; i<(int)sess.getActionLog().size(); i++)
-        cout<<sess.getActionLog()[i]->toString() << "\n";
+        cout<<sess.getActionLog()[i]->toString();
     complete();
 
     //line initialization
@@ -381,7 +367,7 @@ BaseAction* PrintActionsLog::clone() {  return (new PrintActionsLog(*this)); }
 void Exit::act(Session &sess) {
     sess.addAction(this);               //added action to actionLog of the running session
     sess.setRunStat(false );
-
+    complete();
     //line initialization
     std::string str = "";
     sess.setSesLine(str);

@@ -13,7 +13,7 @@ using json = nlohmann::json;
 //---------------------Class Session----------------------
 //Constructor
 Session::Session(const std::string &configFilePath): content (0, nullptr), actionsLog(0, nullptr),
-    userMap{}, activeUser(nullptr), running(false), line("") {
+    userMap(), activeUser(nullptr), running(false), line("") {
     std::ifstream i("../config2.json");
     json j;
     i >>j;
@@ -31,7 +31,7 @@ Session::Session(const std::string &configFilePath): content (0, nullptr), actio
                 if((s==(int)j["tv_series"][k]["seasons"].size()) &  (e==j["tv_series"][k]["seasons"][s - 1]) )
                     EP->setNextEpisodeId(0);                        //LAST EPISODE AT TV SERIES
                 else
-                    EP->setNextEpisodeId((int)this->content.size()+2);
+                    EP->setNextEpisodeId((int)this->content.size());
             }
         }
     }
@@ -56,16 +56,19 @@ Session::~Session() {
     this->activeUser=nullptr;
 }
 //Copy Constructor
-Session::Session(Session &other): content(other.content), actionsLog(other.actionsLog), userMap(other.userMap),
-    activeUser(other.activeUser), running(other.running), line(other.line) {
+Session::Session(Session &other): running(other.running), line(other.line) {
     for(int i=0; i<(int)other.getContent().size(); i++){                 //Insert
-        this->getContent().push_back( other.getContent()[i]->clone() );
+        Watchable* tmp = other.content[i]->clone();
+        this->content.push_back( tmp );
+        tmp=nullptr;
 
        /*Watchable* cpy = Watchable(other.getContent()[i]);
        this->getContent().push_back(other.getContent()[i]); */
     }
     for(int i=0; i<(int)other.getActionLog().size(); i++){                 //Insert
-        this->getActionLog().push_back(  other.getActionLog()[i]->clone() );
+        BaseAction* tmp = other.actionsLog[i]->clone();
+        this->actionsLog.push_back(  tmp );
+        tmp=nullptr;
     }
     /*for ( unsigned i = 0; i < other.getUserMap().bucket_count(); ++i) {
             for ( auto local_it = other.getUserMap().begin(i); local_it!= other.getUserMap().end(i); ++local_it ) {
@@ -101,8 +104,15 @@ Session::Session(Session &other): content(other.content), actionsLog(other.actio
             User *new_usr = local_it->second->clone();
             std::string cpy_name = local_it->first;
             this->getUserMap().insert({cpy_name, new_usr});        //adding user to userMap
-            if(other.getActiveUser() == local_it->second)
+            for(int k=0; k<(int)new_usr->get_history().size(); k++){
+                long tmpid = new_usr->get_history_i(k)->getId();
+                new_usr->set_history_i(k, this->content[tmpid-1]);
+            }
+            if(other.getActiveUser() == local_it->second) {
                 this->setActiveUser(new_usr);    // Active user
+            }
+            new_usr=nullptr;
+
         }
     }
 }
@@ -153,14 +163,18 @@ Session &Session::operator=(Session &other){
             delete this->getContent()[i];
         }
         for (int i = 0; i < (int)other.getContent().size(); i++) {                 //Insert
-            this->getContent().push_back(other.getContent()[i]->clone());                       //CLONE
+            Watchable* tmp = other.content[i]->clone();
+            this->getContent().push_back(tmp);                       //CLONE
+            tmp = nullptr;
         }
 
         for (int i = 0; i < (int)other.getActionLog().size(); i++) {               //delete
             delete other.getActionLog()[i];
         }
         for (int i = 0; i < (int)other.getActionLog().size(); i++) {                 //Insert
-            this->getActionLog().push_back(other.getActionLog()[i]->clone());              //CLONE
+            BaseAction* tmp = other.actionsLog[i]->clone();
+            this->getActionLog().push_back(tmp);              //CLONE
+            tmp = nullptr;
         }
 
         for (unsigned i = 0; i < this->getUserMap().bucket_count(); ++i) { //delete
@@ -174,8 +188,14 @@ Session &Session::operator=(Session &other){
                 User *new_usr = local_it->second->clone();                                  //CLONE
                 std::string cpy_name = local_it->first;
                 this->getUserMap().insert({cpy_name, new_usr});        //adding user to userMap
-                if (other.getActiveUser() == local_it->second)
+                for(int k=0; k<(int)new_usr->get_history().size(); k++){
+                    long tmpid = new_usr->get_history_i(k)->getId();
+                    new_usr->set_history_i(k, this->content[tmpid-1]);
+                }
+                if(other.getActiveUser() == local_it->second) {
                     this->setActiveUser(new_usr);    // Active user
+                }
+                new_usr=nullptr;
             }
         }
     }
@@ -258,7 +278,7 @@ std::string Session::getSesLine() {                             return this->lin
 //setSesLine
 void Session::setSesLine(std::string &str) {                    this->line=str;             }
 //getUserMap
-std::unordered_map<std::string,User*> Session::getUserMap(){    return this->userMap;       }
+std::unordered_map<std::string,User*>& Session::getUserMap(){    return this->userMap;       }
 //setActiveUser
 void Session::setActiveUser(User *name)  {                      this->activeUser=name;      }
 //getActiveUser
@@ -301,7 +321,7 @@ void Session::nextCommand(std::string &currLine) {
         p->act(*this);                      //now p is connected to ActionLog, and more stuff
     }
     else if(word.compare("watchhist")==0){
-        editedLine>>line;
+                                                             //no words
         BaseAction* p = new PrintWatchHistory();
         p->act(*this);                      //now p is connected to ActionLog, and more stuff
     }

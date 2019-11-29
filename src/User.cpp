@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>    // std::sort
 
 #include "../include/Session.h"
 #include "../include/Action.h"
@@ -11,7 +12,7 @@ using namespace std;
 //---------------------Class User----------------------
 //Constructor
 User::User(const std::string& name): history(0,nullptr),name(name), watched(0,false),
-        Genres(0,{"",0}), mstWatchedGenre(nullptr),avg(0){}
+        Genres(0,{0,""}), mstWatchedGenre(nullptr),avg(0){}
 //Destructor
 User::~User() {}
 //Copy Constructor
@@ -43,6 +44,10 @@ Watchable* User::get_history_i(int i) const {
     std::cout << "Error - no such index exists.";
     return nullptr;
 }
+//set history i
+void User::set_history_i(int i, Watchable * newwatch) {
+    this->history[i] = newwatch;
+}
 //setName
 void User::setName(std::string &new_name) {                        this->name=new_name;   }
 //create Watched vector
@@ -55,39 +60,45 @@ std::vector<bool> User::getWatched (){                             return this->
 void User::setWatched_i (int i){                                   this->watched[i]=true; }
 //setAvg
 void User::setAvg(int length_val) {
-    avg = ( avg+ length_val) / this->get_history().size();
+    avg = ( avg*(this->get_history().size()-1)+ length_val) / (this->get_history().size());
 }
 //getAvg
 double User::getAvg() const {                                      return this->avg;       }
 //getGenres
-std::vector<std::pair <std::string,int> > User::getGenres() {      return this->Genres;     }
+std::vector<std::pair <int,std::string> > &User::getGenres() {      return this->Genres;     }
 //addGenre
 void User::addGenre(Watchable *currWatch) {
     for(int i=0; i<(int)currWatch->getTags().size(); i++){
         bool found=false;
-        for(int k=0; k<((int)this->getGenres().size() & !found); k++){
-            if(  currWatch->getTags()[i].compare(this->getGenres()[k].first) ==0 ) {
-                this->getGenres()[k].second++;
-                if((mstWatchedGenre->second < this->getGenres()[k].second) |  // now this is bigger
-                ((mstWatchedGenre->second==this->getGenres()[k].second) & ((mstWatchedGenre->first).compare(this->getGenres()[k].first)>0)))
-                                                                            // or the same size but lexicographSHTUT
-                    mstWatchedGenre=&this->getGenres()[k];
+        for(int k=0; k<((int)this->getGenres().size() & !found); k++) {
+            if (currWatch->getTags()[i].compare(this->getGenres()[k].second) == 0) {
+                this->getGenres()[k].first++;
+                /*
+                if ((mstWatchedGenre->first < this->getGenres()[k].first) |  // now this is bigger
+                    ((mstWatchedGenre->first == this->getGenres()[k].first) &
+                     ((mstWatchedGenre->second).compare(this->getGenres()[k].second) > 0)))
+                    // or the same size but lexicographSHTUT
+                    mstWatchedGenre = &this->getGenres()[k];*/
                 found = true;
             }
+        }
         if(!found) {                   // no kind of this tag yet...
-            std::pair<std::string, int> newPair(currWatch->getTags()[i], 0);
+            std::pair<int,std::string> newPair(1, currWatch->getTags()[i]);
             this->getGenres().push_back(newPair);
-            if((mstWatchedGenre==nullptr) |                                   // no genre chosen yet
+           /* if((mstWatchedGenre==nullptr) ||                                   // no genre chosen yet
             ((mstWatchedGenre->second==newPair.second) & ((mstWatchedGenre->first).compare(newPair.first)>0)))
                                                                             // or the same size but lexicographSHTUT
                 mstWatchedGenre=&newPair;
-            }
+            */
         }
     }
 }
 //getMstWatchedGenre
-std::string User::getMstWatchedGenre () const{                            return this->mstWatchedGenre->first;  }
-
+std::string User::getMstWatchedGenre () const{       return this->mstWatchedGenre->first;  }
+//pushWatchHistory
+void User::pushWatchHistory(Watchable* current){
+    this->history.push_back(current);
+}
 
 //---------------------Class LengthRecUser----------------------
 //Constructor - this is the default anyway
@@ -144,19 +155,28 @@ GenreRecommenderUser::GenreRecommenderUser(const User &other): User(other) {}
 //getRecommendation
 Watchable* GenreRecommenderUser::getRecommendation(Session &s) {
     // those 2 will be operate manuely at Watchable.cpp->getNextWatchable
-    this->setWatched_i( this->get_history_i(  (int)this->get_history().size()-1  )->getId() -1  );  //marked as watched
-    this->addGenre(this->get_history_i(  (int)this->get_history().size()-1));                //counted tags
+    this->setWatched_i(this->get_history_i((int) this->get_history().size() - 1)->getId() - 1);  //marked as watched
+    this->addGenre(this->get_history_i((int) this->get_history().size() - 1));                //counted tags
+    //sort from max to min - in int , and min to max at string
+    std::sort(this->getGenres().begin(),this->getGenres().end(),
+            []( const std::pair<int,std::string> &a, std::pair<int,std::string> &b )
+            {return ( (a.first > b.first) || ((a.first==b.first) & (a.second[0] < b.second[0]) ));});
 
-    Watchable* best_opt = nullptr;
-    for(int i=0; i<(int)s.getContent().size(); i++){                         //checks all content
-        if( !this->getWatched()[i] ) {                                  // content not been watched yet
-            for(int k=0; k<(int)s.getContent()[i]->getTags().size(); k++)    //check all tags of 1 watchable
-                if(s.getContent()[i]->getTags()[k].compare(this->getMstWatchedGenre())==0)
-                    return s.getContent()[i];
+    for(int i=0; i<(int)this->getGenres().size(); i++) {
+        for (int j = 0; j < (int) s.getContent().size(); j++) {                         //checks all content
+            if (!this->getWatched()[j]) {                                               // content not been watched yet
+                for (int k = 0; k < (int) s.getContent()[j]->getTags().size(); k++) {   //check all tags of 1 watchable
+                    if(s.getContent()[j]->getTags()[k].compare((this->getGenres()[i]).second) == 0){
+                        return s.getContent()[j];
+                    }
+                }
+            }
         }
     }
-    return (best_opt);
+    return (nullptr); /// if null pointer work correctly
+
 }
+
 //GenreRecommenderUser Clone
 User *GenreRecommenderUser::clone() {
     return (new GenreRecommenderUser(*this));

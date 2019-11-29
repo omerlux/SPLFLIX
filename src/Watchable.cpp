@@ -94,6 +94,17 @@ std::string Episode::only_name() const{
 //getNextWatchable
 Watchable* Episode::getNextWatchable(Session &sess) const {
     //check by id for fast find
+    if(this->nextEpisodeId!=0) {
+        sess.getActiveUser()->setWatched_i(this->getId() - 1);  //setting watched table
+        sess.getActiveUser()->setAvg(this->getLength()); //compute avg
+        sess.getActiveUser()->addGenre((Watchable *) this);        //adding genres list
+        return sess.getContent()[this->nextEpisodeId];             //TV series have more episodes
+    }
+    else{
+        return sess.getActiveUser()->getRecommendation(sess);    //Last episode
+    }
+/*
+    std::string s = typeid(sess.getActiveUser()).name();
     if(this->nextEpisodeId!=0){
         if(typeid(sess.getActiveUser()).name()[2]  == 'L'){ //
             sess.getActiveUser()->setWatched_i(this->getId()-1 );   //setting watched table
@@ -108,6 +119,7 @@ Watchable* Episode::getNextWatchable(Session &sess) const {
     else{
         return sess.getActiveUser()->getRecommendation(sess);    //Last episode
     }
+    */
 }
 // Episode Clone
 Watchable* Episode::clone() {  return (new Episode(*this)); }

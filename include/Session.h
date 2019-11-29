@@ -30,7 +30,7 @@ public:
     std::vector<Watchable*> getContent();           //return vector of content
     std::string getSesLine();                       //get session.line
     void setSesLine(std::string& str);              //set session.line
-    std::unordered_map<std::string,User*> getUserMap();     //get user map
+    std::unordered_map<std::string,User*> &getUserMap();     //get user map
     void setActiveUser(User* name);                 //set active user
     User* getActiveUser();                          //get active user
     std::vector<BaseAction*> getActionLog();        //get action log

@@ -28,6 +28,8 @@ public:
     User& operator=(User &&other);
     //getHistory_i
     Watchable* get_history_i(int i) const;
+    //setHistory_i
+    void set_history_i(int i, Watchable* newwatch);
     //setName
     void setName(std::string &new_name);
     //getWatched
@@ -41,13 +43,15 @@ public:
     //getAvg
     double getAvg () const;
     //getGenres
-    std::vector<std::pair<std::string,int>> getGenres ();
+    std::vector<std::pair<int,std::string>> &getGenres ();
     //addGenre
     void addGenre (Watchable*);
     //getMstWatchedGenre
     std::string getMstWatchedGenre() const;
     //User clone
     virtual User* clone() ;
+    //Push Watch History
+    void pushWatchHistory(Watchable* current);
     ///-------------Edited End-------------------
 protected:
     std::vector<Watchable*> history;
@@ -55,7 +59,7 @@ private:
     std::string name;
     ///-------------Edited Start-----------------
     std::vector<bool> watched;
-    std::vector<std::pair<std::string,int>> Genres;
+    std::vector<std::pair<int,std::string>> Genres;
     std::pair<std::string,int>* mstWatchedGenre;
     double avg;
 
