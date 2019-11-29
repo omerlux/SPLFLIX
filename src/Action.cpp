@@ -66,16 +66,17 @@ void CreateUser::act(Session &sess) {
             usr->CreateWatched(sess);                 //create watched vector
         }
         else{
-            error("unknown recommendation algorithm!");
+            error("unknown recommendation algorithm!\n");
         }
     }
-    else{    error("user name is taken!");    }
+    else{    error("user name is taken!\n");    }
 
     if(this->getStatus()==ERROR)
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
-    else
+    else {
         this->complete();
-
+        cout<< "TEST: user created named "+name+"\n";           ///TEST
+    }
     //line initialization
     std::string str = "";
     sess.setSesLine(str);
@@ -83,10 +84,12 @@ void CreateUser::act(Session &sess) {
 //createuser toString()
 std::string CreateUser::toString() const {
     std::string str;
-    if(this->getStatus()==ERROR)
-        str="CreateUser "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
+    if (this->getStatus() == ERROR)
+        str = "CreateUser ERROR: " + this->getErrorMsg() + "\n";
+    else if (this->getStatus() == COMPLETED)
+        str = "CreateUser COMPLETED\n";
     else
-        str="CreateUser "+to_string(this->getStatus())+"\n";
+        str = "CreateUser PENDING\n";
     return (str);
 }
 // CreateUser Clone
@@ -104,8 +107,10 @@ void ChangeActiveUser::act(Session &sess) {
 
     if(this->getStatus()==ERROR)
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
-    else
+    else{
         this->complete();
+        cout<< "TEST: user changed named "+name+"\n";          ///TEST
+    }
 
     //line initialization
     std::string str = "";
@@ -114,10 +119,12 @@ void ChangeActiveUser::act(Session &sess) {
 //changeactiveuser toString()
 std::string ChangeActiveUser::toString() const {
     std::string str;
-    if(this->getStatus()==ERROR)
-        str="ChangeActiveUser "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
+    if (this->getStatus() == ERROR)
+        str = "ChangeActiveUser ERROR: " + this->getErrorMsg() + "\n";
+    else if (this->getStatus() == COMPLETED)
+        str = "ChangeActiveUser COMPLETED\n";
     else
-        str="ChangeActiveUser "+to_string(this->getStatus())+"\n";
+        str = "ChangeActiveUser PENDING\n";
     return (str);
 }
 // ChangeActiveUser Clone
@@ -137,8 +144,10 @@ void DeleteUser::act(Session &sess) {
 
     if(this->getStatus()==ERROR)
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
-    else
+    else{
+        cout<< "TEST: user deleted named "+name+"\n";          ///TEST
         this->complete();
+    }
 
     //line initialization
     std::string str = "";
@@ -147,10 +156,12 @@ void DeleteUser::act(Session &sess) {
 //DeleteUser toString()
 std::string DeleteUser::toString() const {
     std::string str;
-    if(this->getStatus()==ERROR)
-        str="DeleteUser "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
+    if (this->getStatus() == ERROR)
+        str = "DeleteUser ERROR: " + this->getErrorMsg() + "\n";
+    else if (this->getStatus() == COMPLETED)
+        str = "DeleteUser COMPLETED\n";
     else
-        str="DeleteUser "+to_string(this->getStatus())+"\n";
+        str = "DeleteUser PENDING\n";
     return (str);
 }
 // DeleteUser Clone
@@ -212,10 +223,12 @@ void DuplicateUser::act(Session &sess) {
 //DuplicateUser toString()
 std::string DuplicateUser::toString() const {
     std::string str;
-    if(this->getStatus()==ERROR)
-        str="DuplicateUser "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
+    if (this->getStatus() == ERROR)
+        str = "DuplicateUser ERROR: " + this->getErrorMsg() + "\n";
+    else if (this->getStatus() == COMPLETED)
+        str = "DuplicateUser COMPLETED\n";
     else
-        str="DuplicateUser "+to_string(this->getStatus())+"\n";
+        str = "DuplicateUser PENDING\n";
     return (str);
 }
 // DuplicateUser Clone
@@ -278,10 +291,12 @@ void PrintWatchHistory::act(Session &sess) {
 //PrintWatchHistory toString()
 std::string PrintWatchHistory::toString() const {
     std::string str;
-    if(this->getStatus()==ERROR)
-        str="PrintWatchHistory "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
+    if (this->getStatus() == ERROR)
+        str = "PrintWatchHistory ERROR: " + this->getErrorMsg() + "\n";
+    else if (this->getStatus() == COMPLETED)
+        str = "PrintWatchHistory COMPLETED\n";
     else
-        str="PrintWatchHistory "+to_string(this->getStatus())+"\n";
+        str = "PrintWatchHistory PENDING\n";
     return (str);
 }
 // PrintWatchHistory Clone
@@ -321,14 +336,16 @@ void Watch::act(Session &sess) {
         delete next_watch;
     }
 }
-//PrintWatchHistory toString()
+//Watch toString()
 std::string Watch::toString() const {
-    std::string str;
-    if(this->getStatus()==ERROR)
-        str="Watch "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
-    else
-        str="Watch "+to_string(this->getStatus())+"\n";
-    return (str);
+        std::string str;
+        if (this->getStatus() == ERROR)
+            str = "Watch ERROR: " + this->getErrorMsg() + "\n";
+        else if (this->getStatus() == COMPLETED)
+            str = "Watch COMPLETED\n";
+        else
+            str = "Watch PENDING\n";
+        return (str);
 }
 // Watch Clone
 BaseAction* Watch::clone() {  return (new Watch(*this)); }
@@ -348,10 +365,12 @@ void PrintActionsLog::act(Session &sess) {
 //PrintActionsLog toString()
 std::string PrintActionsLog::toString() const {
     std::string str;
-  /*  if(this->getStatus()==ERROR)
-        str="PrintActionsLog "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
-    else                */
-        str="PrintActionsLog "+to_string(this->getStatus())+"\n";
+    if (this->getStatus() == ERROR)
+        str = "PrintActionsLog ERROR: " + this->getErrorMsg() + "\n";
+    else if (this->getStatus() == COMPLETED)
+        str = "PrintActionsLog COMPLETED\n";
+    else
+        str = "PrintActionsLog PENDING\n";
     return (str);
 }
 // PrintActionsLog Clone
@@ -369,12 +388,14 @@ void Exit::act(Session &sess) {
 }
 //Exit toString()
 std::string Exit::toString() const {
-    std::string str;
- /*   if(this->getStatus()==ERROR)
-        str="Exit "+to_string(this->getStatus()) +": "+this->getErrorMsg()+"\n";
-    else                */
-        str="Exit "+to_string(this->getStatus())+"\n";
-    return (str);
+        std::string str;
+        if (this->getStatus() == ERROR)
+            str = "Exit ERROR: " + this->getErrorMsg() + "\n";
+        else if (this->getStatus() == COMPLETED)
+            str = "Exit COMPLETED\n";
+        else
+            str = "Exit PENDING\n";
+        return (str);
 }
 // Exit Clone
 BaseAction* Exit::clone() {  return (new Exit(*this)); }

@@ -318,7 +318,7 @@ void Session::nextCommand(std::string &currLine) {
         BaseAction* p = new Exit();
         p->act(*this);                      //now p is connected to ActionLog, and more stuff
     }
-    else{   cout<<"Error - no such command!";    }
+    else{   cout<<"Error - no such command!\n";    }
 }
 
 
