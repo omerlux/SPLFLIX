@@ -33,7 +33,7 @@ public:
     //setName
     void setName(std::string &new_name);
     //getWatched
-    std::vector<bool> getWatched();
+    std::vector<int> getWatched();
     //setWatched
     void setWatched_i(int i);
     //create watch vector
@@ -51,14 +51,14 @@ public:
     //User clone
     virtual User* clone() ;
     //Push Watch History
-    void pushWatchHistory(Watchable* current);
+    void pushWatchHistory(Watchable *current);
     ///-------------Edited End-------------------
 protected:
     std::vector<Watchable*> history;
 private:
     std::string name;
     ///-------------Edited Start-----------------
-    std::vector<bool> watched;
+    std::vector<int> watched;
     std::vector<std::pair<int,std::string>> Genres;
     std::pair<std::string,int>* mstWatchedGenre;
     double avg;

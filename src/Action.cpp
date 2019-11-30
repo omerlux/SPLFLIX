@@ -75,7 +75,7 @@ void CreateUser::act(Session &sess) {
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else {
         this->complete();
-        cout<< "Message: user created named "+name+"\n";           ///Message
+        //cout<< "Message: user created named "+name+"\n";           //TODO: DELETE
     }
     //line initialization
     std::string str = "";
@@ -110,7 +110,7 @@ void ChangeActiveUser::act(Session &sess) {
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else{
         this->complete();
-        cout<< "Message: active user changed to "+name+"\n";          ///Message
+        //cout<< "Message: active user changed to "+name+"\n";          //TODO: DELETE
     }
 
     //line initialization
@@ -137,8 +137,9 @@ void DeleteUser::act(Session &sess) {
     sess.addAction(this);               //added action to actionLog of the running session
     std::string name = sess.getSesLine();
     if ( (sess.getUserMap()).find(name)!=sess.getUserMap().end()) { //check if exists in the usermap
-        if(sess.getUserMap()[name] == sess.getActiveUser())
-            sess.setActiveUser( sess.getUserMap()["default"]  );// if is active - set default
+        //if(sess.getUserMap()[name] == sess.getActiveUser())   ///current user wont be deleted @@@@@@
+        //    sess.setActiveUser( sess.getUserMap()["default"]  );// if is active - set default
+        delete sess.getUserMap()[name];
         sess.getUserMap().erase(name);           //delete name from the users
     }
     else{    error("there is no such user!");   }
@@ -146,7 +147,7 @@ void DeleteUser::act(Session &sess) {
     if(this->getStatus()==ERROR)
         cout<< "Error - "<< this->getErrorMsg()<<"\n";
     else{
-        cout<< "Message: deleted user: "+name+"\n";          ///Message
+        //cout<< "Message: deleted user: "+name+"\n";          //TODO: DELETE
         this->complete();
     }
 
@@ -185,7 +186,7 @@ void DuplicateUser::act(Session &sess) {
             User* usr = sess.getUserMap()[orig_name]->clone();
             usr->setName(new_name);
             sess.getUserMap().insert( {new_name , usr} );
-            cout<< "Message: duplicated user: "+new_name+" is a copy of "+orig_name+"\n";          ///Message
+            //cout<< "Message: duplicated user: "+new_name+" is a copy of "+orig_name+"\n";          //TODO: DELETE
             usr = nullptr;
         }
         else{
@@ -306,8 +307,8 @@ void Watch::act(Session &sess) {
 
             std::string ans;
             getline(std::cin, ans);
-            //while (!((ans.compare("y") == 0) | (ans.compare("n") == 0))) {
-            //   cout << "Choose only y or n.\n";
+            //while (!((ans.compare("y") == 0) | (ans.compare("n") == 0))) {  //infinite loop problem
+            //    cout << "Choose only y or n.\n";
             //    getline(std::cin, ans);
             //}
             if (ans.compare("y") == 0) {
