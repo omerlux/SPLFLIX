@@ -46,8 +46,6 @@ public:
     std::vector<std::pair<int,std::string>> &getGenres ();
     //addGenre
     void addGenre (Watchable*);
-    //getMstWatchedGenre
-    std::string getMstWatchedGenre() const;
     //User clone
     virtual User* clone() ;
     //Push Watch History
@@ -60,7 +58,6 @@ private:
     ///-------------Edited Start-----------------
     std::vector<int> watched;
     std::vector<std::pair<int,std::string>> Genres;
-    std::pair<std::string,int>* mstWatchedGenre;
     double avg;
 
     ///-------------Edited End-------------------

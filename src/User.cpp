@@ -12,17 +12,17 @@ using namespace std;
 //---------------------Class User----------------------
 //Constructor
 User::User(const std::string& name): history(0,nullptr),name(name), watched(0,0),
-        Genres(0,{0,""}), mstWatchedGenre(nullptr),avg(0){}
+        Genres(0,{0,""}),avg(0){}
 //Destructor
 User::~User() {}
 //Copy Constructor
 User::User(const User &other):  history(other.history), name(other.name),watched(other.watched),
-                Genres(other.Genres),mstWatchedGenre(other.mstWatchedGenre),avg(other.avg){  /// $$$  NewName suppose to be valid
+                Genres(other.Genres),avg(other.avg){  /// $$$  NewName suppose to be valid
 ///copy of vector by default
 }
 //Move Constructor
 User::User(User &&other): history(other.history),name(other.name), watched(other.watched),
-                         Genres(other.Genres),mstWatchedGenre(other.mstWatchedGenre),avg(other.avg) {}
+                         Genres(other.Genres),avg(other.avg) {}
 //Copy Assignment
 User &User::operator=(const User &other) { return *this; }
 //Move Assignment
@@ -81,8 +81,6 @@ void User::addGenre(Watchable *currWatch) {
         }
     }
 }
-//getMstWatchedGenre
-std::string User::getMstWatchedGenre () const{       return this->mstWatchedGenre->first;  }
 //pushWatchHistory
 void User::pushWatchHistory(Watchable *current){
     this->history.push_back(current);
