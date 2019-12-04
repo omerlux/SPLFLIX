@@ -48,9 +48,11 @@ Session::~Session() {
     for(int i=0; i<(int)this->content.size(); i++){                 //DELETE
         delete this->content[i];
     }
+    this->content.clear();
     for(int i=0; i<(int)this->actionsLog.size(); i++){               //DELETE
         delete this->actionsLog[i];
     }
+    this->actionsLog.clear();
     for (auto local_it = this->userMap.begin(); local_it != this->userMap.end(); ++local_it)
         delete local_it->second;
     //this->userMap.erase(this->userMap.begin(),this->userMap.end());  //DELETE
@@ -106,14 +108,17 @@ Session::Session(Session &&other): content(), actionsLog(), userMap(),
             delete other.content[i];
         }
         //
+        other.content.clear();
 
         for (int i = 0; i < (int)other.actionsLog.size(); i++) {                 //Insert
             this->actionsLog.push_back(other.actionsLog[i]);
             other.actionsLog[i] = nullptr;    //delete other one
         }
+
         for (int i = 0; i < (int)other.actionsLog.size(); i++) {
             delete other.actionsLog[i];     //delete other one
         }
+        other.actionsLog.clear();
 
         for (unsigned i = 0; i < other.userMap.bucket_count(); ++i) {
             for (auto local_it = other.userMap.begin(i); local_it != other.userMap.end(i); ++local_it) {
@@ -126,6 +131,7 @@ Session::Session(Session &&other): content(), actionsLog(), userMap(),
             }
         }
         other.userMap.clear();
+        other.activeUser = nullptr;
         //other.userMap.erase(other.userMap.begin(), other.userMap.end());  //DELETE
 }
 //Copy Assignment
@@ -229,6 +235,7 @@ Session &Session::operator=(Session &&other) {
             }
         }
         other.userMap.clear();
+        other.activeUser = nullptr;
         //other.userMap.erase(other.userMap.begin(),other.userMap.end());  //DELETE Other
     }
         return (*this);
